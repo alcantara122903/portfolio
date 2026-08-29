@@ -1,4 +1,4 @@
-export const SITE_URL = "https://portfolio-ivan-dev4.vercel.app";
+export const SITE_URL = "https://ivan-alcantara.vercel.app";
 
 export const SECTION_IDS = {
   home: "home",

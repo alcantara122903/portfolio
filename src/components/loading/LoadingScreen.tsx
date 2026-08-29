@@ -1,101 +1,272 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { TrexLoaderGame } from "@/components/loading/TrexLoader3D";
+import dynamic from "next/dynamic";
+import { portfolio } from "@/data/portfolio";
+import { HERO_TECH_NODES } from "@/lib/constants";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-const MIN_LOAD_MS = 2800;
+const TrexLoaderGame = dynamic(
+  () =>
+    import("@/components/loading/TrexLoader3D").then((m) => m.TrexLoaderGame),
+  { ssr: false },
+);
+
+const INTRO_LINES = [
+  portfolio.personal.fullName,
+  portfolio.personal.role,
+  portfolio.personal.tagline,
+  portfolio.personal.specialization,
+  portfolio.personal.status,
+] as const;
+
+const INTRO_DURATION_MS = 6200;
+const LINE_INTERVAL_MS = 1050;
+
+function easeOutCubic(t: number): number {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+const lineVariants = {
+  enter: {
+    opacity: 0,
+    y: 24,
+    filter: "blur(8px)",
+  },
+  center: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+  },
+  exit: {
+    opacity: 0,
+    y: -18,
+    filter: "blur(6px)",
+  },
+};
 
 export function LoadingScreen() {
   const reducedMotion = useReducedMotion();
-  const [phase, setPhase] = useState<"loading" | "ready">("loading");
   const [visible, setVisible] = useState(true);
-  const jumpRef = useRef<(() => void) | null>(null);
+  const [lineIndex, setLineIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [exiting, setExiting] = useState(false);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (reducedMotion) {
-      setVisible(false);
-      return;
+      const t = window.setTimeout(() => setVisible(false), 350);
+      return () => window.clearTimeout(t);
     }
 
-    const start = Date.now();
-    const finishLoad = () => {
-      const elapsed = Date.now() - start;
-      const wait = Math.max(0, MIN_LOAD_MS - elapsed);
-      window.setTimeout(() => setPhase("ready"), wait);
+    const start = performance.now();
+
+    const lineTimer = window.setInterval(() => {
+      setLineIndex((i) => Math.min(i + 1, INTRO_LINES.length - 1));
+    }, LINE_INTERVAL_MS);
+
+    const tick = (now: number) => {
+      const elapsed = now - start;
+      const raw = Math.min(1, elapsed / INTRO_DURATION_MS);
+      setProgress(easeOutCubic(raw) * 100);
+
+      if (elapsed < INTRO_DURATION_MS) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
     };
 
-    if (document.readyState === "complete") {
-      finishLoad();
-    } else {
-      window.addEventListener("load", finishLoad, { once: true });
-    }
+    rafRef.current = requestAnimationFrame(tick);
+
+    const exitTimer = window.setTimeout(() => {
+      setExiting(true);
+      window.setTimeout(() => setVisible(false), 850);
+    }, INTRO_DURATION_MS);
+
+    return () => {
+      window.clearInterval(lineTimer);
+      window.clearTimeout(exitTimer);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
   }, [reducedMotion]);
 
-  const enterSite = useCallback(() => {
-    setVisible(false);
-  }, []);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.code !== "Space" && e.code !== "ArrowUp") return;
-
-      if (phase === "ready") {
-        e.preventDefault();
-        enterSite();
-        return;
-      }
-
-      if (phase === "loading") {
-        e.preventDefault();
-        jumpRef.current?.();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [phase, enterSite]);
-
-  if (reducedMotion) return null;
+  if (!visible && reducedMotion) return null;
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {visible && (
         <motion.div
-          className="fixed inset-0 z-9999 flex items-center justify-center bg-zinc-950 px-4"
+          className="fixed inset-0 z-9999 flex flex-col overflow-hidden bg-zinc-950"
           initial={{ opacity: 1 }}
+          animate={
+            exiting
+              ? { opacity: 0, scale: 1.015, filter: "blur(12px)" }
+              : { opacity: 1, scale: 1, filter: "blur(0px)" }
+          }
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.45, ease: "easeInOut" }}
+          transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="w-full max-w-2xl">
-            <p className="mb-2 text-center font-mono text-[11px] uppercase tracking-[0.25em] text-zinc-500">
-              Loading portfolio
-            </p>
-            <h2 className="mb-4 text-center text-lg font-medium text-zinc-100 sm:text-xl">
-              {phase === "ready" ? "Ready!" : "T-Rex Runner 3D"}
-            </h2>
+          <div className="pointer-events-none absolute inset-0 grid-pattern opacity-40" />
+          <div className="pointer-events-none absolute inset-0 scanline opacity-30" />
 
-            <TrexLoaderGame active={phase === "loading"} jumpRef={jumpRef} />
+          <motion.div
+            className="pointer-events-none absolute -left-24 top-1/4 h-72 w-72 rounded-full bg-sky-500/10 blur-3xl"
+            animate={{ x: [0, 30, 0], y: [0, -20, 0], scale: [1, 1.08, 1] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="pointer-events-none absolute -right-16 bottom-1/4 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl"
+            animate={{ x: [0, -25, 0], y: [0, 15, 0], scale: [1, 1.12, 1] }}
+            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+          />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(56,189,248,0.12)_0%,transparent_55%)]" />
 
-            <p className="mt-4 text-center font-mono text-xs text-zinc-400">
-              {phase === "ready" ? (
-                <span className="text-sky-400">Press SPACE to enter portfolio</span>
-              ) : (
-                "T-Rex is running — SPACE or tap to jump"
-              )}
-            </p>
-
-            {phase === "ready" && (
-              <div className="mt-5 flex justify-center">
-                <button
-                  type="button"
-                  onClick={enterSite}
-                  className="rounded-lg border border-zinc-700 bg-zinc-900 px-5 py-2.5 text-sm font-medium text-zinc-100 transition-colors hover:border-sky-500/50 hover:text-white"
+          <div className="relative flex flex-1 flex-col items-center justify-center px-6 py-10 sm:px-10">
+            <div className="grid w-full max-w-4xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
+              <div className="flex flex-col justify-center text-center lg:text-left">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex items-center justify-center gap-3 lg:justify-start"
                 >
-                  Enter Portfolio
-                </button>
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400/60 opacity-60" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-sky-400" />
+                  </span>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-zinc-500">
+                    Portfolio
+                  </p>
+                </motion.div>
+
+                <div className="mt-5 min-h-[148px] sm:min-h-[168px]">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={lineIndex}
+                      variants={lineVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {lineIndex === 0 ? (
+                        <h1 className="text-gradient text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+                          {INTRO_LINES[0]}
+                        </h1>
+                      ) : lineIndex === 1 ? (
+                        <p className="bg-linear-to-r from-sky-300 via-cyan-300 to-sky-400 bg-clip-text text-xl font-medium text-transparent sm:text-2xl">
+                          {INTRO_LINES[1]}
+                        </p>
+                      ) : (
+                        <p className="text-base leading-relaxed text-zinc-300 sm:text-lg">
+                          {INTRO_LINES[lineIndex]}
+                        </p>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+
+                <div className="mt-5 flex justify-center gap-1.5 lg:justify-start">
+                  {INTRO_LINES.map((_, i) => (
+                    <motion.span
+                      key={i}
+                      className="h-1 rounded-full bg-zinc-800"
+                      animate={{
+                        width: i === lineIndex ? 20 : 6,
+                        backgroundColor:
+                          i <= lineIndex
+                            ? i === lineIndex
+                              ? "rgba(56, 189, 248, 0.9)"
+                              : "rgba(56, 189, 248, 0.35)"
+                            : "rgba(39, 39, 42, 1)",
+                      }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  ))}
+                </div>
+
+                <motion.div
+                  initial="hidden"
+                  animate={lineIndex >= 2 ? "visible" : "hidden"}
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: { staggerChildren: 0.06, delayChildren: 0.15 },
+                    },
+                  }}
+                  className="mt-7 flex flex-wrap justify-center gap-2 lg:justify-start"
+                >
+                  {HERO_TECH_NODES.map((tech) => (
+                    <motion.span
+                      key={tech}
+                      variants={{
+                        hidden: { opacity: 0, y: 10, scale: 0.92 },
+                        visible: {
+                          opacity: 1,
+                          y: 0,
+                          scale: 1,
+                          transition: { type: "spring", stiffness: 380, damping: 24 },
+                        },
+                      }}
+                      className="rounded-full border border-zinc-800/80 bg-zinc-900/70 px-2.5 py-1 text-[10px] text-zinc-400 backdrop-blur-sm"
+                    >
+                      {tech}
+                    </motion.span>
+                  ))}
+                </motion.div>
               </div>
-            )}
+
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: 0.15, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full"
+              >
+                <TrexLoaderGame active={!reducedMotion && !exiting} />
+                <motion.p
+                  className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.25em] text-zinc-600"
+                  animate={{ opacity: [0.45, 0.85, 0.45] }}
+                  transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  Preparing experience
+                </motion.p>
+              </motion.div>
+            </div>
+          </div>
+
+          <div className="relative px-6 pb-8 sm:px-10">
+            <div className="mx-auto max-w-4xl">
+              <div className="mb-2.5 flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-zinc-600">
+                <span>Entering portfolio</span>
+                <motion.span
+                  key={Math.round(progress)}
+                  initial={{ opacity: 0.5, y: 2 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {Math.round(progress)}%
+                </motion.span>
+              </div>
+              <div className="relative h-1 overflow-hidden rounded-full bg-zinc-800/80">
+                <motion.div
+                  className="absolute inset-y-0 left-0 rounded-full bg-linear-to-r from-sky-500 via-cyan-400 to-sky-300"
+                  style={{ width: `${progress}%` }}
+                  transition={{ ease: "linear", duration: 0.05 }}
+                />
+                <motion.div
+                  className="absolute inset-y-0 w-24 bg-linear-to-r from-transparent via-white/30 to-transparent"
+                  style={{ left: `${Math.max(0, progress - 12)}%` }}
+                  animate={{ opacity: progress > 2 && progress < 98 ? 1 : 0 }}
+                />
+                <div
+                  className="pointer-events-none absolute inset-0 rounded-full opacity-60"
+                  style={{
+                    boxShadow: `0 0 20px ${progress > 5 ? "rgba(56,189,248,0.45)" : "transparent"}`,
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </motion.div>
       )}
