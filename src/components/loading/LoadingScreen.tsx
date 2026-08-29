@@ -1,17 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { TrexLoaderGame } from "@/components/loading/TrexLoaderGame";
+import { TrexLoaderGame } from "@/components/loading/TrexLoader3D";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-const MIN_LOAD_MS = 2200;
+const MIN_LOAD_MS = 2800;
 
 export function LoadingScreen() {
   const reducedMotion = useReducedMotion();
   const [phase, setPhase] = useState<"loading" | "ready">("loading");
-  const [started, setStarted] = useState(false);
   const [visible, setVisible] = useState(true);
+  const jumpRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (reducedMotion) {
@@ -39,17 +39,22 @@ export function LoadingScreen() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.code !== "Space") return;
-      e.preventDefault();
+      if (e.code !== "Space" && e.code !== "ArrowUp") return;
+
       if (phase === "ready") {
+        e.preventDefault();
         enterSite();
         return;
       }
-      if (!started) setStarted(true);
+
+      if (phase === "loading") {
+        e.preventDefault();
+        jumpRef.current?.();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, started, enterSite]);
+  }, [phase, enterSite]);
 
   if (reducedMotion) return null;
 
@@ -67,18 +72,16 @@ export function LoadingScreen() {
               Loading portfolio
             </p>
             <h2 className="mb-4 text-center text-lg font-medium text-zinc-100 sm:text-xl">
-              {phase === "ready" ? "Ready!" : started ? "Loading..." : "T-Rex Runner"}
+              {phase === "ready" ? "Ready!" : "T-Rex Runner 3D"}
             </h2>
 
-            <TrexLoaderGame active={started && phase === "loading"} />
+            <TrexLoaderGame active={phase === "loading"} jumpRef={jumpRef} />
 
             <p className="mt-4 text-center font-mono text-xs text-zinc-400">
               {phase === "ready" ? (
                 <span className="text-sky-400">Press SPACE to enter portfolio</span>
-              ) : started ? (
-                "Use SPACE or tap to jump while the site loads"
               ) : (
-                "Press SPACE to start"
+                "T-Rex is running — SPACE or tap to jump"
               )}
             </p>
 
