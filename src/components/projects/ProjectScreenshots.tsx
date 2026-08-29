@@ -37,8 +37,8 @@ export function ProjectScreenshots({
         <p className="mb-3 text-xs font-medium uppercase tracking-widest text-zinc-500">
           Mobile Application
         </p>
-        <div className="flex h-full min-h-[320px] flex-col rounded-2xl border border-zinc-800/80 bg-zinc-950/50 p-4 sm:min-h-[360px] sm:p-5">
-          <div className="flex flex-1 items-end justify-center gap-4 sm:gap-6">
+        <div className="flex h-full min-h-[280px] flex-col rounded-2xl border border-zinc-800/80 bg-zinc-950/50 p-3 sm:min-h-[320px] sm:p-4 md:min-h-[360px] md:p-5">
+          <div className="-mx-1 flex flex-1 items-end justify-start gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scroll-px-2 sm:mx-0 sm:justify-center sm:gap-4 sm:overflow-visible md:gap-6">
             {mobileShots.map((shot) => (
               <DeviceMockup
                 key={shot.src}
@@ -47,7 +47,7 @@ export function ProjectScreenshots({
                 imageSrc={shot.src}
                 imageAlt={shot.alt}
                 label={shot.label}
-                className="shrink-0"
+                className="shrink-0 snap-center"
               />
             ))}
           </div>
@@ -75,7 +75,7 @@ export function ProjectScreenshots({
         <p className="mb-3 text-xs font-medium uppercase tracking-widest text-zinc-500">
           Web Platform
         </p>
-        <div className="grid gap-5 lg:grid-cols-2 lg:items-stretch lg:gap-8">
+        <div className="grid gap-5 md:grid-cols-2 md:items-stretch md:gap-6 lg:gap-8">
           <div className="flex flex-col rounded-2xl border border-zinc-800/80 bg-zinc-950/50 p-4 sm:p-5">
             <div className="flex flex-1 flex-col justify-center gap-4 sm:gap-5">
               {webShots.map((shot) => (

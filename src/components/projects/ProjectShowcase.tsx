@@ -20,8 +20,8 @@ export function ProjectShowcase({ project }: ProjectShowcaseProps) {
       id={project.id}
       className={
         isFeatured
-          ? "rounded-3xl border border-zinc-800/80 bg-linear-to-b from-zinc-900/60 to-zinc-950/40 p-6 sm:p-8 lg:p-10"
-          : "rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-6 sm:p-8"
+          ? "rounded-2xl border border-zinc-800/80 bg-linear-to-b from-zinc-900/60 to-zinc-950/40 p-4 sm:rounded-3xl sm:p-6 md:p-8 lg:p-10"
+          : "rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-4 sm:p-6 md:p-8"
       }
     >
       <Reveal>
@@ -83,7 +83,7 @@ export function ProjectShowcase({ project }: ProjectShowcaseProps) {
         )}
       </Reveal>
 
-      <div className="mt-10 grid items-start gap-8 lg:grid-cols-2 lg:gap-10">
+      <div className="mt-10 grid items-start gap-6 sm:gap-8 md:grid-cols-2 md:gap-10">
         <Reveal delay={0.15}>
           {project.screenshotSrc && project.additionalScreenshots?.length ? (
             <ProjectScreenshots project={project} section="mobile" />
@@ -97,7 +97,7 @@ export function ProjectShowcase({ project }: ProjectShowcaseProps) {
             <p className="mb-3 text-xs font-medium uppercase tracking-widest text-zinc-500">
               System Architecture
             </p>
-            <div className="flex min-h-[320px] flex-col rounded-2xl border border-zinc-800/80 bg-zinc-950/50 p-4 sm:min-h-[360px] sm:p-6">
+            <div className="flex min-h-[280px] flex-col rounded-2xl border border-zinc-800/80 bg-zinc-950/50 p-3 sm:min-h-[320px] sm:p-4 md:min-h-[360px] md:p-6">
               <ArchitectureFlow
                 flowId={`${project.id}-architecture`}
                 steps={project.architecture}

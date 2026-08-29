@@ -90,7 +90,7 @@ function FlowBox({
   return (
     <motion.div
       className={cn(
-        "relative w-full rounded-lg border px-3 py-2 text-center text-[10px] font-semibold uppercase leading-snug tracking-wide transition-colors sm:px-4 sm:py-2.5 sm:text-[11px]",
+        "relative w-full rounded-lg border px-3 py-2 text-center text-[9px] font-semibold uppercase leading-snug tracking-wide transition-colors min-[380px]:text-[10px] sm:px-4 sm:py-2.5 sm:text-[11px]",
         highlighted
           ? "border-sky-500/60 bg-sky-500/5 text-sky-300 shadow-[0_0_20px_rgba(14,165,233,0.08)]"
           : "border-zinc-800/80 bg-zinc-900/40 text-zinc-500",

@@ -13,9 +13,9 @@ interface DeviceMockupProps {
 }
 
 const mobileSizes = {
-  default: "w-55 sm:w-65",
-  compact: "w-36 sm:w-40",
-  gallery: "w-36 sm:w-40",
+  default: "w-48 sm:w-55 md:w-65",
+  compact: "w-[6.75rem] min-[380px]:w-28 sm:w-32 md:w-36 lg:w-40",
+  gallery: "w-[6.75rem] min-[380px]:w-28 sm:w-32 md:w-36 lg:w-40",
 } as const;
 
 export function DeviceMockup({

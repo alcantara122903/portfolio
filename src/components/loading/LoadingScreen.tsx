@@ -21,8 +21,8 @@ const INTRO_LINES = [
   portfolio.personal.status,
 ] as const;
 
-const INTRO_DURATION_MS = 6200;
-const LINE_INTERVAL_MS = 1050;
+const INTRO_DURATION_MS = 3000;
+const LINE_INTERVAL_MS = 600;
 
 function easeOutCubic(t: number): number {
   return 1 - Math.pow(1 - t, 3);
@@ -80,7 +80,7 @@ export function LoadingScreen() {
 
     const exitTimer = window.setTimeout(() => {
       setExiting(true);
-      window.setTimeout(() => setVisible(false), 850);
+      window.setTimeout(() => setVisible(false), 500);
     }, INTRO_DURATION_MS);
 
     return () => {
@@ -96,7 +96,7 @@ export function LoadingScreen() {
     <AnimatePresence mode="wait">
       {visible && (
         <motion.div
-          className="fixed inset-0 z-9999 flex flex-col overflow-hidden bg-zinc-950"
+          className="fixed inset-0 z-9999 flex min-h-dvh flex-col overflow-x-hidden overflow-y-auto overscroll-contain bg-zinc-950"
           initial={{ opacity: 1 }}
           animate={
             exiting
@@ -104,42 +104,58 @@ export function LoadingScreen() {
               : { opacity: 1, scale: 1, filter: "blur(0px)" }
           }
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="pointer-events-none absolute inset-0 grid-pattern opacity-40" />
           <div className="pointer-events-none absolute inset-0 scanline opacity-30" />
 
           <motion.div
-            className="pointer-events-none absolute -left-24 top-1/4 h-72 w-72 rounded-full bg-sky-500/10 blur-3xl"
+            className="pointer-events-none absolute -left-16 top-1/4 h-48 w-48 rounded-full bg-sky-500/10 blur-3xl sm:-left-24 sm:h-72 sm:w-72"
             animate={{ x: [0, 30, 0], y: [0, -20, 0], scale: [1, 1.08, 1] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="pointer-events-none absolute -right-16 bottom-1/4 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl"
+            className="pointer-events-none absolute -right-10 bottom-1/4 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl sm:-right-16 sm:h-64 sm:w-64"
             animate={{ x: [0, -25, 0], y: [0, 15, 0], scale: [1, 1.12, 1] }}
             transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
           />
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(56,189,248,0.12)_0%,transparent_55%)]" />
 
-          <div className="relative flex flex-1 flex-col items-center justify-center px-6 py-10 sm:px-10">
-            <div className="grid w-full max-w-4xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
-              <div className="flex flex-col justify-center text-center lg:text-left">
+          <div className="relative flex flex-1 flex-col items-center justify-center px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 lg:px-10">
+            <div className="grid w-full max-w-4xl items-center gap-6 sm:gap-8 md:grid-cols-2 md:gap-10 lg:gap-14">
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                className="order-1 w-full min-w-0 md:order-2"
+              >
+                <TrexLoaderGame active={!reducedMotion && !exiting} />
+                <motion.p
+                  className="mt-2 text-center font-mono text-[9px] uppercase tracking-[0.2em] text-zinc-600 sm:mt-3 sm:text-[10px] sm:tracking-[0.25em]"
+                  animate={{ opacity: [0.45, 0.85, 0.45] }}
+                  transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  Preparing experience
+                </motion.p>
+              </motion.div>
+
+              <div className="order-2 flex min-w-0 flex-col justify-center text-center md:order-1 md:text-left">
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex items-center justify-center gap-3 lg:justify-start"
+                  className="flex items-center justify-center gap-2.5 md:justify-start"
                 >
-                  <span className="relative flex h-2 w-2">
+                  <span className="relative flex h-2 w-2 shrink-0">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400/60 opacity-60" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-sky-400" />
                   </span>
-                  <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-zinc-500">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-zinc-500 sm:text-[11px] sm:tracking-[0.35em]">
                     Portfolio
                   </p>
                 </motion.div>
 
-                <div className="mt-5 min-h-[148px] sm:min-h-[168px]">
+                <div className="mt-4 min-h-[108px] sm:mt-5 sm:min-h-[128px] md:min-h-[148px] lg:min-h-[168px]">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={lineIndex}
@@ -150,15 +166,15 @@ export function LoadingScreen() {
                       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                     >
                       {lineIndex === 0 ? (
-                        <h1 className="text-gradient text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+                        <h1 className="text-gradient text-balance text-2xl font-semibold leading-tight tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">
                           {INTRO_LINES[0]}
                         </h1>
                       ) : lineIndex === 1 ? (
-                        <p className="bg-linear-to-r from-sky-300 via-cyan-300 to-sky-400 bg-clip-text text-xl font-medium text-transparent sm:text-2xl">
+                        <p className="text-balance bg-linear-to-r from-sky-300 via-cyan-300 to-sky-400 bg-clip-text text-lg font-medium text-transparent sm:text-xl md:text-2xl">
                           {INTRO_LINES[1]}
                         </p>
                       ) : (
-                        <p className="text-base leading-relaxed text-zinc-300 sm:text-lg">
+                        <p className="text-balance text-sm leading-relaxed text-zinc-300 sm:text-base md:text-lg">
                           {INTRO_LINES[lineIndex]}
                         </p>
                       )}
@@ -166,7 +182,7 @@ export function LoadingScreen() {
                   </AnimatePresence>
                 </div>
 
-                <div className="mt-5 flex justify-center gap-1.5 lg:justify-start">
+                <div className="mt-4 flex justify-center gap-1.5 md:justify-start">
                   {INTRO_LINES.map((_, i) => (
                     <motion.span
                       key={i}
@@ -195,7 +211,7 @@ export function LoadingScreen() {
                       transition: { staggerChildren: 0.06, delayChildren: 0.15 },
                     },
                   }}
-                  className="mt-7 flex flex-wrap justify-center gap-2 lg:justify-start"
+                  className="mt-5 flex flex-wrap justify-center gap-1.5 sm:mt-7 sm:gap-2 md:justify-start"
                 >
                   {HERO_TECH_NODES.map((tech) => (
                     <motion.span
@@ -209,41 +225,26 @@ export function LoadingScreen() {
                           transition: { type: "spring", stiffness: 380, damping: 24 },
                         },
                       }}
-                      className="rounded-full border border-zinc-800/80 bg-zinc-900/70 px-2.5 py-1 text-[10px] text-zinc-400 backdrop-blur-sm"
+                      className="rounded-full border border-zinc-800/80 bg-zinc-900/70 px-2 py-0.5 text-[9px] text-zinc-400 backdrop-blur-sm sm:px-2.5 sm:py-1 sm:text-[10px]"
                     >
                       {tech}
                     </motion.span>
                   ))}
                 </motion.div>
               </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ delay: 0.15, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full"
-              >
-                <TrexLoaderGame active={!reducedMotion && !exiting} />
-                <motion.p
-                  className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.25em] text-zinc-600"
-                  animate={{ opacity: [0.45, 0.85, 0.45] }}
-                  transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  Preparing experience
-                </motion.p>
-              </motion.div>
             </div>
           </div>
 
-          <div className="relative px-6 pb-8 sm:px-10">
+          <div className="relative shrink-0 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6 md:px-8 lg:px-10">
             <div className="mx-auto max-w-4xl">
-              <div className="mb-2.5 flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-zinc-600">
-                <span>Entering portfolio</span>
+              <div className="mb-2 flex items-center justify-between gap-3 font-mono text-[9px] uppercase tracking-widest text-zinc-600 sm:mb-2.5 sm:text-[10px]">
+                <span className="truncate">Entering portfolio</span>
                 <motion.span
                   key={Math.round(progress)}
                   initial={{ opacity: 0.5, y: 2 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2 }}
+                  className="shrink-0"
                 >
                   {Math.round(progress)}%
                 </motion.span>
@@ -255,7 +256,7 @@ export function LoadingScreen() {
                   transition={{ ease: "linear", duration: 0.05 }}
                 />
                 <motion.div
-                  className="absolute inset-y-0 w-24 bg-linear-to-r from-transparent via-white/30 to-transparent"
+                  className="absolute inset-y-0 w-16 bg-linear-to-r from-transparent via-white/30 to-transparent sm:w-24"
                   style={{ left: `${Math.max(0, progress - 12)}%` }}
                   animate={{ opacity: progress > 2 && progress < 98 ? 1 : 0 }}
                 />

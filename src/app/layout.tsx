@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SITE_URL } from "@/lib/constants";
@@ -19,6 +19,13 @@ const geistMono = Geist_Mono({
 const title = "Ivan Alcantara | Mobile & Web Developer";
 const description =
   "Portfolio of Ivan Alcantara, an Information Technology student specializing in Mobile and Web Applications with experience in React Native, Laravel, Supabase, REST APIs, databases, and software development.";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#09090b",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -59,7 +66,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100">
+      <body className="flex min-h-dvh flex-col bg-zinc-950 text-zinc-100 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
         <LoadingScreen />
         {children}
       </body>

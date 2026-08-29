@@ -34,7 +34,7 @@ export function Navbar() {
       )}
     >
       <nav
-        className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-6 lg:px-8"
+        className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 sm:py-4 lg:px-8"
         aria-label="Main navigation"
       >
         <a
@@ -78,7 +78,7 @@ export function Navbar() {
           id="mobile-menu"
           className="border-t border-zinc-800/80 bg-zinc-950/95 backdrop-blur-xl md:hidden"
         >
-          <ul className="flex flex-col gap-1 px-5 py-4">
+          <ul className="flex flex-col gap-1 px-4 py-4 sm:px-5">
             {portfolio.navigation.map((item) => (
               <li key={item.href}>
                 <a

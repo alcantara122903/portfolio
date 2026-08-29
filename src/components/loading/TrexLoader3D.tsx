@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import type { Group } from "three";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const GRAVITY = -0.018;
 const JUMP_V = 0.42;
@@ -240,13 +241,20 @@ function RunnerScene({ active }: { active: boolean }) {
 }
 
 export function TrexLoaderGame({ active }: { active: boolean }) {
+  const isMobile = useMediaQuery("(max-width: 640px)");
+
   return (
     <div
-      className="relative h-44 w-full overflow-hidden rounded-2xl border border-zinc-800/90 bg-zinc-900/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_0_40px_-12px_rgba(56,189,248,0.2)] sm:h-52"
+      className="relative h-32 w-full min-w-0 overflow-hidden rounded-xl border border-zinc-800/90 bg-zinc-900/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_0_40px_-12px_rgba(56,189,248,0.2)] sm:h-40 sm:rounded-2xl md:h-44 lg:h-52"
       aria-hidden="true"
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-linear-to-r from-transparent via-sky-500/40 to-transparent" />
-      <Canvas shadows dpr={[1, 1.75]} gl={{ antialias: true, alpha: false }}>
+      <Canvas
+        shadows
+        dpr={isMobile ? [1, 1.25] : [1, 1.75]}
+        gl={{ antialias: true, alpha: false }}
+        className="h-full! w-full!"
+      >
         <RunnerScene active={active} />
       </Canvas>
     </div>

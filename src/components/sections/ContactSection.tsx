@@ -32,7 +32,7 @@ export function ContactSection() {
               href={GMAIL_COMPOSE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 inline-block text-zinc-200 transition-colors hover:text-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60"
+              className="mt-1 inline-block break-all text-sm text-zinc-200 transition-colors hover:text-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 sm:break-normal sm:text-base"
             >
               {contact.email}
             </a>
@@ -45,7 +45,7 @@ export function ContactSection() {
               href={LINKEDIN_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 inline-block text-zinc-200 transition-colors hover:text-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60"
+              className="mt-1 inline-block break-all text-sm text-zinc-200 transition-colors hover:text-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 sm:break-normal sm:text-base"
             >
               linkedin.com/in/ivan-alcantara-9265903b5
             </a>
@@ -58,7 +58,7 @@ export function ContactSection() {
               href={contact.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 inline-block text-zinc-200 transition-colors hover:text-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60"
+              className="mt-1 inline-block break-all text-sm text-zinc-200 transition-colors hover:text-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 sm:break-normal sm:text-base"
             >
               github.com/alcantara122903
             </a>
@@ -66,7 +66,7 @@ export function ContactSection() {
         </Reveal>
 
         <Reveal delay={0.2}>
-          <div className="mt-10 flex flex-wrap gap-3">
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <MagneticButton>
               <Button
                 href={GMAIL_COMPOSE_URL}

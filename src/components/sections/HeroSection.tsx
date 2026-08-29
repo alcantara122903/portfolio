@@ -25,20 +25,20 @@ const HeroScene = dynamic(
 export function HeroSection() {
   const { personal, socials } = portfolio;
   const github = socials.find((s) => s.icon === "github");
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 640px)");
   const showScene = !isMobile;
 
   return (
     <section
       id="home"
-      className="relative min-h-screen overflow-hidden pt-24 pb-16 sm:pt-28 lg:pb-24"
+      className="relative min-h-dvh overflow-hidden pt-20 pb-12 sm:pt-24 sm:pb-16 md:pt-28 lg:pb-24"
     >
       <div className="pointer-events-none absolute inset-0 grid-pattern opacity-40" />
       <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-zinc-950 via-zinc-950/95 to-zinc-950" />
 
       <Container className="relative">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-8">
-          <div className="max-w-xl">
+        <div className="grid items-center gap-8 md:grid-cols-2 md:gap-10 lg:gap-8">
+          <div className="min-w-0 max-w-xl">
             <FadeIn>
               <p className="text-xs font-medium uppercase tracking-[0.25em] text-zinc-500">
                 Hello, I&apos;m
@@ -46,7 +46,7 @@ export function HeroSection() {
             </FadeIn>
 
             <FadeIn delay={0.1}>
-              <h1 className="mt-3 text-5xl font-semibold leading-[0.95] tracking-tight text-zinc-50 sm:text-6xl lg:text-7xl">
+              <h1 className="mt-3 text-4xl font-semibold leading-[0.95] tracking-tight text-zinc-50 min-[380px]:text-5xl sm:text-6xl lg:text-7xl">
                 {personal.firstName.toUpperCase()}
                 <br />
                 {personal.lastName.toUpperCase()}
@@ -72,7 +72,7 @@ export function HeroSection() {
             </FadeIn>
 
             <FadeIn delay={0.5}>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <MagneticButton>
                   <Button href="#projects">Explore My Work</Button>
                 </MagneticButton>
@@ -113,7 +113,7 @@ export function HeroSection() {
             </FadeIn>
           </div>
 
-          <FadeIn delay={0.3} className="relative">
+          <FadeIn delay={0.3} className="relative min-w-0">
             {showScene ? (
               <Suspense fallback={<SceneFallback />}>
                 <HeroScene />
