@@ -21,8 +21,8 @@ const INTRO_LINES = [
   portfolio.personal.status,
 ] as const;
 
-const INTRO_DURATION_MS = 3000;
-const LINE_INTERVAL_MS = 600;
+const INTRO_DURATION_MS = 1000;
+const LINE_INTERVAL_MS = 220;
 
 function easeOutCubic(t: number): number {
   return 1 - Math.pow(1 - t, 3);
