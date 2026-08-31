@@ -7,6 +7,8 @@ export interface PersonalInfo {
   bio: string;
   location: string;
   status: string;
+  availability: string;
+  focusAreas: string[];
   education: string;
   specialization: string;
   resumePath: string;
@@ -41,6 +43,8 @@ export interface Project {
   label?: string;
   summary: string;
   description?: string;
+  outcomes?: string[];
+  reflection?: string;
   features?: string[];
   technicalImplementation?: string[];
   contributions: ProjectContribution[];
@@ -50,7 +54,9 @@ export interface Project {
   teamNotes?: string;
   githubUrl?: string;
   liveUrl?: string;
+  caseStudyPath?: string;
   featured?: boolean;
+  compact?: boolean;
   screenshotPath?: string;
   screenshotSrc?: string;
   additionalScreenshots?: { src: string; alt: string; label: string }[];

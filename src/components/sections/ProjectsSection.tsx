@@ -19,7 +19,7 @@ export function ProjectsSection() {
         <SectionHeading
           eyebrow="Projects"
           title="Systems I've Built"
-          subtitle="Academic projects focused on real workflows — from mobile interfaces to APIs and databases."
+          subtitle="Start with NU-SECURE — then supporting projects that built the fundamentals behind it."
         />
 
         <div className="mt-6 space-y-4 sm:mt-8">

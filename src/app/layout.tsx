@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 
 const title = "Ivan Alcantara | Mobile & Web Developer";
 const description =
-  "Portfolio of Ivan Alcantara, an Information Technology student specializing in Mobile and Web Applications with experience in React Native, Laravel, Supabase, REST APIs, databases, and software development.";
+  "Ivan Alcantara — Mobile & Web Developer. Open to internship opportunities in 2026. React Native, Laravel, Next.js, Supabase.";
 
 export const viewport: Viewport = {
   width: "device-width",

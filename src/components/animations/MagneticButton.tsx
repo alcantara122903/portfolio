@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
 
@@ -19,9 +20,14 @@ export function MagneticButton({
   const ref = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const reducedMotion = useReducedMotion();
+  const isCoarse = useMediaQuery("(hover: none), (pointer: coarse)");
+
+  if (reducedMotion || isCoarse) {
+    return <div className={cn("inline-block", className)}>{children}</div>;
+  }
 
   const handleMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (reducedMotion || !ref.current) return;
+    if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     const x = (event.clientX - rect.left - rect.width / 2) * strength;
     const y = (event.clientY - rect.top - rect.height / 2) * strength;

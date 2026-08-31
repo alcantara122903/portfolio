@@ -7,9 +7,15 @@ export const portfolio: PortfolioData = {
     fullName: "Ivan Vasquez Alcantara",
     role: "Mobile & Web Developer",
     tagline: "Building systems that connect people, data, and experiences.",
-    bio: "Fourth-year Information Technology student specializing in Mobile and Web Applications with hands-on experience in web and mobile development, API integration, databases, QR workflows, OCR integration, and responsive interfaces.",
+    bio: "Fourth-year Information Technology student specializing in Mobile and Web Applications — shipping real workflows across React Native, Laravel APIs, and databases.",
     location: "Lipa City, Philippines",
-    status: "Open to Internship Opportunities",
+    status: "Open to Internship · Mobile & Web · 2026",
+    availability: "Available for internship opportunities in 2026",
+    focusAreas: [
+      "Mobile development",
+      "Web development",
+      "Full-stack systems",
+    ],
     education: "BS Information Technology",
     specialization: "Mobile & Web Applications",
     resumePath: "/resume",
@@ -35,11 +41,9 @@ export const portfolio: PortfolioData = {
   ],
 
   navigation: [
-    { label: "Home", href: "#home" },
     { label: "About", href: "#about" },
     { label: "Projects", href: "#projects" },
     { label: "Skills", href: "#skills" },
-    { label: "Process", href: "#process" },
     { label: "Education", href: "#education" },
     { label: "Contact", href: "#contact" },
   ],
@@ -51,20 +55,23 @@ export const portfolio: PortfolioData = {
       subtitle: "Smart Visitor Monitoring System",
       role: "Mobile & Web Application Developer · Capstone Team Member",
       summary:
-        "A smart visitor monitoring system with a mobile guard application and web-based visitor monitoring portal, supporting visitor registration, QR-based identification and validation, enrollee progress tracking, office validation, and visitor exit processing.",
+        "A production-facing visitor monitoring system connecting a React Native guard app and Laravel web portal through REST APIs, QR validation, OCR ID capture, and a shared Supabase/PostgreSQL database.",
+      outcomes: [
+        "Owned mobile + web feature work spanning registration, QR scanning, office validation, enrollee progress, and visitor exit flows.",
+        "Integrated REST APIs so guard devices and the VMS portal stayed in sync on the same visitor lifecycle.",
+        "Hardened real campus workflows through testing, troubleshooting, and end-to-end UX fixes with a four-member team.",
+      ],
       contributions: [
         {
-          title: "What I Worked On",
+          title: "What I Owned",
           items: [
-            "Mobile application development",
-            "Web platform development",
-            "QR workflows",
-            "API integration",
-            "Database integration",
-            "OCR workflow",
-            "Testing",
-            "Troubleshooting",
-            "End-to-end workflow improvement",
+            "Mobile application development (React Native / Expo)",
+            "Web platform features on the Laravel VMS portal",
+            "QR identification and validation flows",
+            "REST API integration between mobile and backend",
+            "Database-backed visitor lifecycle updates",
+            "OCR ID-scan workflow support",
+            "Testing, troubleshooting, and workflow polish",
           ],
         },
         {
@@ -80,13 +87,11 @@ export const portfolio: PortfolioData = {
         {
           title: "Web Platform",
           items: [
-            "Laravel web platform and admin system",
-            "Visitor Monitoring System (VMS) portal",
-            "REST API endpoints for mobile integration",
-            "Visitor type selection workflows",
-            "Guard on-duty management interface",
-            "Authentication and session handling",
-            "Database migrations and backend logic",
+            "Laravel admin / VMS portal surfaces",
+            "REST endpoints for mobile clients",
+            "Visitor type and guard on-duty workflows",
+            "Auth sessions and role-aware access",
+            "Migrations and backend visitor logic",
           ],
         },
       ],
@@ -111,9 +116,10 @@ export const portfolio: PortfolioData = {
       ],
       team: "Four-member capstone team",
       teamNotes:
-        "The team designed, tested, troubleshooted, and improved end-to-end visitor monitoring functionality.",
+        "Designed, tested, and improved end-to-end visitor monitoring for real campus use.",
       featured: true,
       liveUrl: "https://www.nu-secure.com/",
+      caseStudyPath: "/projects/nu-secure",
       screenshotPath: "/projects/nu-secure",
       screenshotSrc: "/projects/nu-secure/guard-portal.png",
       additionalScreenshots: [
@@ -167,12 +173,12 @@ export const portfolio: PortfolioData = {
       id: "tipuno",
       title: "TIPUNO BARBERSHOP",
       subtitle: "Appointment and Online Shop System",
-      label: "Full-Stack Web Development Project",
+      label: "Supporting Project",
       role: "Full-Stack Developer",
       summary:
-        "A PHP and MySQL web application combining appointment management and e-commerce functionality.",
-      description:
-        "A PHP and MySQL web application combining appointment management and e-commerce functionality.",
+        "A PHP and MySQL web app combining appointment booking with a simple online shop — focused on CRUD flows, sessions, and transactional checkout.",
+      reflection:
+        "This project sharpened fundamentals: secure password hashing, prepared queries, session auth, and keeping appointments + cart state consistent in MySQL.",
       features: [
         "Customer Registration",
         "Login",
@@ -184,22 +190,14 @@ export const portfolio: PortfolioData = {
         "Inventory",
         "Order History",
       ],
-      technicalImplementation: [
-        "CRUD Operations",
-        "Prepared Queries",
-        "Password Hashing",
-        "Sessions",
-        "Database Transactions",
-      ],
       contributions: [
         {
-          title: "Technical Implementation",
+          title: "What I Built",
           items: [
-            "CRUD Operations",
-            "Prepared Queries",
-            "Password Hashing",
-            "Sessions",
-            "Database Transactions",
+            "Appointment booking, reschedule, and cancellation flows",
+            "Cart, checkout, and order history",
+            "CRUD with prepared queries and password hashing",
+            "Session-based auth and MySQL transactions",
           ],
         },
       ],
@@ -211,6 +209,7 @@ export const portfolio: PortfolioData = {
         { label: "Shop" },
         { label: "Checkout" },
       ],
+      compact: true,
       screenshotPath: "/projects/tipuno",
       screenshotSrc: "/projects/tipuno/screenshot.jpg",
       screenshotPlaceholder: "Add image to /public/projects/tipuno/",
@@ -219,28 +218,26 @@ export const portfolio: PortfolioData = {
       id: "about-me",
       title: "ABOUT ME",
       subtitle: "Personal Portfolio — Dreamy Anime World",
-      label: "Frontend Web Development Project",
+      label: "Supporting Project",
       role: "Frontend Developer",
       summary:
-        "A personal portfolio website showcasing life, fitness, IT journey, and creative gallery sections — built with Tailwind CSS and deployed on GitHub Pages.",
+        "An earlier personal site exploring layout, Tailwind styling, and GitHub Pages deployment — useful practice before this Systems Lab portfolio.",
+      reflection:
+        "Taught me responsive section structure, visual hierarchy, and shipping a static site. The current portfolio is the stronger representation of my stack.",
       features: [
-        "About Me",
-        "Profile Gallery",
-        "Fitness Journey",
-        "IT Journey",
-        "Life Journey",
-        "Responsive Navigation",
-        "Media Gallery",
+        "Multi-section layout",
+        "Profile & media galleries",
+        "Responsive navigation",
+        "GitHub Pages deploy",
       ],
       contributions: [
         {
-          title: "What I Built",
+          title: "What I Learned",
           items: [
-            "Multi-section personal portfolio layout",
-            "Tailwind CSS frontend styling",
-            "Responsive navigation and page structure",
-            "Image and video gallery sections",
-            "GitHub Pages deployment",
+            "Composable page sections in plain HTML/CSS/JS",
+            "Tailwind utility styling at speed",
+            "Responsive nav and media galleries",
+            "Static hosting on GitHub Pages",
           ],
         },
       ],
@@ -257,6 +254,7 @@ export const portfolio: PortfolioData = {
         { label: "Static Frontend" },
         { label: "GitHub Pages" },
       ],
+      compact: true,
       liveUrl: "https://alcantara122903.github.io/About_me/",
       screenshotPath: "/projects/about-me",
       screenshotSrc: "/projects/about-me/screenshot.png",
@@ -266,41 +264,37 @@ export const portfolio: PortfolioData = {
 
   skills: [
     {
-      title: "Programming Languages",
-      items: ["C", "C++", "PHP", "JavaScript", "TypeScript", "SQL"],
+      title: "Languages",
+      items: ["TypeScript", "JavaScript", "PHP", "SQL", "C", "C++"],
     },
     {
-      title: "Web Development",
-      items: ["Laravel", "HTML", "CSS", "Tailwind CSS"],
+      title: "Frontend & Mobile",
+      items: ["React", "Next.js", "React Native", "Expo", "Tailwind CSS", "HTML", "CSS"],
     },
     {
-      title: "Mobile Development",
-      items: ["React Native", "Expo"],
+      title: "Backend & Data",
+      items: ["Laravel", "REST APIs", "MySQL", "PostgreSQL", "Supabase"],
     },
     {
-      title: "Databases",
-      items: ["MySQL", "PostgreSQL", "Supabase"],
-    },
-    {
-      title: "Development",
+      title: "Practices",
       items: [
-        "REST API Integration",
-        "CRUD Operations",
         "Authentication",
-        "Database Management",
-        "Responsive Web Development",
+        "CRUD & transactions",
+        "API integration",
+        "Responsive UI",
+        "Testing & troubleshooting",
       ],
     },
     {
       title: "Tools",
-      items: ["Git", "GitHub"],
+      items: ["Git", "GitHub", "Vite"],
     },
   ],
 
   skillFlows: [
     {
       id: "web-stack",
-      steps: ["TypeScript", "Next.js", "React", "Tailwind CSS"],
+      steps: ["TypeScript", "React", "Next.js", "Tailwind CSS"],
     },
     {
       id: "mobile-stack",
@@ -351,18 +345,6 @@ export const portfolio: PortfolioData = {
       specialization: "Mobile and Web Applications",
       location: "Lipa City, Batangas, Philippines",
     },
-    {
-      period: "2020 — 2022",
-      institution: "Metro Manila College",
-      degree: "Senior High School",
-      location: "Quezon City, Metro Manila",
-    },
-    {
-      period: "2016 — 2020",
-      institution: "Llano High School",
-      degree: "Junior High School",
-      location: "Caloocan City, Metro Manila",
-    },
   ],
 
   certification: {
@@ -381,7 +363,7 @@ export const portfolio: PortfolioData = {
 
   portfolioStack: [
     { category: "Language", items: ["TypeScript"] },
-    { category: "Framework", items: ["Next.js"] },
+    { category: "Framework", items: ["Next.js", "React"] },
     { category: "Styling", items: ["Tailwind CSS"] },
     { category: "3D", items: ["Three.js", "React Three Fiber"] },
     { category: "Animation", items: ["Framer Motion", "Anime.js"] },
@@ -390,11 +372,11 @@ export const portfolio: PortfolioData = {
   terminal: [
     { command: "whoami", output: "Ivan Alcantara" },
     { command: "specialization", output: "Mobile & Web Applications" },
-    { command: "current_focus", output: "Software Development" },
+    { command: "current_focus", output: "Software Development Internship" },
     {
       command: "stack",
-      output: "React Native / Laravel / Supabase / TypeScript",
+      output: "React Native / Laravel / Supabase / TypeScript / Next.js",
     },
-    { command: "status", output: "Open to internship opportunities" },
+    { command: "status", output: "Open to internship · Mobile & Web · 2026" },
   ],
 };

@@ -1,5 +1,7 @@
-# Add Ivan-Alcantara-Resume.pdf here
+# Résumé PDF
 
-Place your résumé PDF at: `public/resume/Ivan-Alcantara-Resume.pdf`
+Place your résumé at:
 
-The "View Résumé" and "Download Résumé" buttons link to `/resume/Ivan-Alcantara-Resume.pdf`.
+`public/resume/Ivan-Alcantara-Resume.pdf`
+
+Download uses `/api/resume` (correct attachment headers), then falls back to the static PDF path, then the printable `/resume?download=1` page.

@@ -39,8 +39,12 @@ export function Navbar() {
       >
         <a
           href="#home"
-          className="text-lg font-semibold tracking-tight text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+          className="inline-flex items-center gap-2.5 text-lg font-semibold tracking-tight text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
         >
+          <span
+            className="inline-block h-2.5 w-2.5 rotate-45 bg-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.7)]"
+            aria-hidden="true"
+          />
           IVAN<span className="text-sky-400">.</span>
         </a>
 
@@ -58,7 +62,7 @@ export function Navbar() {
         </ul>
 
         <div className="hidden md:block">
-          <Badge variant="accent">{portfolio.personal.status}</Badge>
+          <Badge variant="accent">Open to Internship · 2026</Badge>
         </div>
 
         <button

@@ -10,7 +10,7 @@ import { DownloadResumeButton } from "@/components/ui/DownloadResumeButton";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function ContactSection() {
-  const { contact } = portfolio;
+  const { contact, personal } = portfolio;
 
   return (
     <section id="contact" className="py-24 sm:py-32">
@@ -18,7 +18,7 @@ export function ContactSection() {
         <SectionHeading
             eyebrow="Contact"
             title="LET'S BUILD SOMETHING THAT WORKS."
-            subtitle="I'm currently looking for internship opportunities in software development, mobile development, web development, and related IT roles. If you're building something interesting, I'd love to hear about it."
+            subtitle={`${personal.availability}. Prefer ${personal.focusAreas.join(", ").toLowerCase()}. If you're hiring interns or building something interesting, I'd love to hear from you.`}
           />
 
         <Reveal delay={0.1} className="mt-10 max-w-xl space-y-4">

@@ -11,7 +11,6 @@ import { MagneticButton } from "@/components/animations/MagneticButton";
 import { Container } from "@/components/layout/Container";
 import { SceneFallback } from "@/components/three/SceneFallback";
 import { Button } from "@/components/ui/Button";
-import { GitHubIcon } from "@/components/ui/icons";
 import { StatusIndicator } from "@/components/ui/StatusIndicator";
 
 const HeroScene = dynamic(
@@ -24,8 +23,7 @@ const HeroScene = dynamic(
 );
 
 export function HeroSection() {
-  const { personal, socials } = portfolio;
-  const github = socials.find((s) => s.icon === "github");
+  const { personal } = portfolio;
   const isMobile = useMediaQuery("(max-width: 640px)");
   const showScene = !isMobile;
   const sectionRef = useRef<HTMLElement>(null);
@@ -94,19 +92,11 @@ export function HeroSection() {
                     View Résumé
                   </Button>
                 </MagneticButton>
-                {github && (
-                  <MagneticButton>
-                    <Button
-                      href={github.href}
-                      variant="outline"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <GitHubIcon size={16} />
-                      GitHub
-                    </Button>
-                  </MagneticButton>
-                )}
+                <MagneticButton>
+                  <Button href="#contact" variant="outline">
+                    Contact Me
+                  </Button>
+                </MagneticButton>
               </div>
             </FadeIn>
 
@@ -117,6 +107,9 @@ export function HeroSection() {
                   Based in {personal.location}
                 </span>
               </div>
+              <p className="mt-3 text-sm text-zinc-500">
+                Focus: {personal.focusAreas.join(" · ")}
+              </p>
             </FadeIn>
           </div>
 

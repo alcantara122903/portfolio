@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { animate, createScope, createTimeline, spring } from "animejs";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import type { TrexPhase } from "@/components/loading/TrexLoader3D";
 
@@ -12,18 +13,29 @@ const TrexLoaderGame = dynamic(
   { ssr: false },
 );
 
-const LOAD_MS = 2200;
+const LOAD_MS_DESKTOP = 2200;
+const LOAD_MS_MOBILE = 1200;
 const ROAR_MS = 1200;
 
 export function LoadingScreen() {
   const rootRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [hydrated, setHydrated] = useState(false);
   const [visible, setVisible] = useState(true);
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState<TrexPhase>("run");
   const [showRawr, setShowRawr] = useState(false);
+  const loadMs = isMobile ? LOAD_MS_MOBILE : LOAD_MS_DESKTOP;
+  const showTrex = hydrated && !isMobile;
 
   useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+
     if (reducedMotion) {
       const t = window.setTimeout(() => setVisible(false), 300);
       return () => window.clearTimeout(t);
@@ -39,58 +51,75 @@ export function LoadingScreen() {
         defaults: { ease: "out(3)" },
       });
 
-      tl.add('[data-loader="stage"]', {
-        opacity: [0, 1],
-        y: [20, 0],
-        scale: [0.97, 1],
-        duration: 700,
-      }, 0);
-
-      tl.add(progressProxy, {
-        value: 100,
-        duration: LOAD_MS,
-        ease: "inOut(2)",
-        onUpdate: () => setProgress(Math.round(progressProxy.value)),
-        onComplete: () => {
-          setProgress(100);
-          setPhase("roar");
-          setShowRawr(true);
-
-          window.requestAnimationFrame(() => {
-            animate('[data-loader="rawr"]', {
-              opacity: [0, 1],
-              scale: [0.35, 1.15, 1],
-              rotate: [-10, 5, 0],
-              duration: 720,
-              ease: spring({ bounce: 0.55 }),
-            });
-          });
-
-          roarTimer = window.setTimeout(() => {
-            animate(rootRef.current!, {
-              opacity: [1, 0],
-              scale: [1, 1.03],
-              filter: ["blur(0px)", "blur(12px)"],
-              duration: 560,
-              ease: "inOut(3)",
-              onComplete: () => setVisible(false),
-            });
-          }, ROAR_MS);
+      tl.add(
+        '[data-loader="stage"]',
+        {
+          opacity: [0, 1],
+          y: [20, 0],
+          scale: [0.97, 1],
+          duration: 700,
         },
-      }, 0);
+        0,
+      );
 
-      tl.add('[data-loader="bar"]', {
-        scaleX: [0, 1],
-        duration: LOAD_MS,
-        ease: "inOut(2)",
-      }, 0);
+      tl.add(
+        progressProxy,
+        {
+          value: 100,
+          duration: loadMs,
+          ease: "inOut(2)",
+          onUpdate: () => setProgress(Math.round(progressProxy.value)),
+          onComplete: () => {
+            setProgress(100);
+            if (showTrex) {
+              setPhase("roar");
+              setShowRawr(true);
+
+              window.requestAnimationFrame(() => {
+                animate('[data-loader="rawr"]', {
+                  opacity: [0, 1],
+                  scale: [0.35, 1.15, 1],
+                  rotate: [-10, 5, 0],
+                  duration: 720,
+                  ease: spring({ bounce: 0.55 }),
+                });
+              });
+            }
+
+            roarTimer = window.setTimeout(
+              () => {
+                animate(rootRef.current!, {
+                  opacity: [1, 0],
+                  scale: [1, 1.03],
+                  filter: ["blur(0px)", "blur(12px)"],
+                  duration: 560,
+                  ease: "inOut(3)",
+                  onComplete: () => setVisible(false),
+                });
+              },
+              showTrex ? ROAR_MS : 200,
+            );
+          },
+        },
+        0,
+      );
+
+      tl.add(
+        '[data-loader="bar"]',
+        {
+          scaleX: [0, 1],
+          duration: loadMs,
+          ease: "inOut(2)",
+        },
+        0,
+      );
     });
 
     return () => {
       scope.revert();
       if (roarTimer) window.clearTimeout(roarTimer);
     };
-  }, [reducedMotion]);
+  }, [hydrated, reducedMotion, loadMs, showTrex]);
 
   if (!visible) return null;
 
@@ -116,16 +145,26 @@ export function LoadingScreen() {
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-10 sm:px-8">
         <div data-loader="stage" className="relative w-full max-w-2xl opacity-0">
-          <TrexLoaderGame active={!reducedMotion && visible} phase={phase} />
-
-          {showRawr && (
-            <div
-              data-loader="rawr"
-              className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0"
-            >
-              <span className="rounded-xl border border-sky-300/40 bg-zinc-950/75 px-6 py-2.5 text-4xl font-black tracking-[0.22em] text-sky-300 shadow-[0_0_50px_rgba(56,189,248,0.4)] backdrop-blur-sm sm:text-5xl">
-                RAWR!
-              </span>
+          {showTrex ? (
+            <>
+              <TrexLoaderGame active={!reducedMotion && visible} phase={phase} />
+              {showRawr && (
+                <div
+                  data-loader="rawr"
+                  className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0"
+                >
+                  <span className="rounded-xl border border-sky-300/40 bg-zinc-950/75 px-6 py-2.5 text-4xl font-black tracking-[0.22em] text-sky-300 shadow-[0_0_50px_rgba(56,189,248,0.4)] backdrop-blur-sm sm:text-5xl">
+                    RAWR!
+                  </span>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-4 py-16">
+              <div className="h-3 w-3 rotate-45 bg-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.8)]" />
+              <p className="font-mono text-xs uppercase tracking-[0.28em] text-zinc-400">
+                Ivan Alcantara
+              </p>
             </div>
           )}
         </div>

@@ -47,18 +47,32 @@ body {
   color: #fafafa;
 }
 
-:focus-visible {
+:focus {
   outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(56, 189, 248, 0.75);
+  outline-offset: 3px;
 }
 
 /* Custom Systems Lab cursor — desktop / fine pointer only */
 html.custom-cursor-active,
-html.custom-cursor-active * {
+html.custom-cursor-active body,
+html.custom-cursor-active a,
+html.custom-cursor-active button,
+html.custom-cursor-active [role="button"],
+html.custom-cursor-active input,
+html.custom-cursor-active textarea,
+html.custom-cursor-active select,
+html.custom-cursor-active label,
+html.custom-cursor-active summary {
   cursor: none !important;
 }
 
-html.custom-cursor-active a,
-html.custom-cursor-active button,
-html.custom-cursor-active [role="button"] {
-  cursor: none !important;
+@media (max-width: 768px) {
+  html.custom-cursor-active,
+  html.custom-cursor-active * {
+    cursor: auto !important;
+  }
 }
