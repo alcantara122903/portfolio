@@ -384,7 +384,7 @@ export const portfolio: PortfolioData = {
     { category: "Framework", items: ["Next.js"] },
     { category: "Styling", items: ["Tailwind CSS"] },
     { category: "3D", items: ["Three.js", "React Three Fiber"] },
-    { category: "Animation", items: ["Framer Motion"] },
+    { category: "Animation", items: ["Framer Motion", "Anime.js"] },
   ],
 
   terminal: [

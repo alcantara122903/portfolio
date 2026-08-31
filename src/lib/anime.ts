@@ -5,13 +5,13 @@ export const ANIME_EASE = {
 } as const;
 
 export const ANIME_DURATION = {
-  fast: 600,
-  medium: 900,
-  slow: 1200,
+  fast: 500,
+  medium: 800,
+  slow: 1100,
 } as const;
 
 export const ANIME_COLORS = {
-  sky: "#38bdf8",
-  indigo: "#818cf8",
-  emerald: "#34d399",
+  accent: "#38bdf8",
+  accentSoft: "#7dd3fc",
+  accentDim: "rgba(56, 189, 248, 0.12)",
 } as const;

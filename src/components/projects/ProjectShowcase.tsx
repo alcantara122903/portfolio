@@ -1,165 +1,222 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { Check } from "lucide-react";
+import { animate, createScope, onScroll, stagger } from "animejs";
 import type { Project } from "@/types/portfolio";
-import { ExternalLink, Globe } from "lucide-react";
-import { GitHubIcon } from "@/components/ui/icons";
-import { Reveal } from "@/components/animations/Reveal";
+import { ANIME_DURATION, ANIME_EASE } from "@/lib/anime";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { ArchitectureFlow } from "@/components/projects/ArchitectureFlow";
 import { ProjectScreenshots } from "@/components/projects/ProjectScreenshots";
 import { ProjectTech } from "@/components/projects/ProjectTech";
 import { Button } from "@/components/ui/Button";
-import { GlassCard } from "@/components/ui/GlassCard";
+import { GitHubIcon } from "@/components/ui/icons";
+import { Globe } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ProjectShowcaseProps {
   project: Project;
+  index?: number;
 }
 
-export function ProjectShowcase({ project }: ProjectShowcaseProps) {
+export function ProjectShowcase({ project, index = 0 }: ProjectShowcaseProps) {
+  const rootRef = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
   const isFeatured = project.featured;
+
+  useEffect(() => {
+    if (reducedMotion || !rootRef.current) return;
+
+    const scope = createScope({ root: rootRef }).add(() => {
+      animate('[data-project="block"]', {
+        opacity: [0, 1],
+        y: [22, 0],
+        duration: ANIME_DURATION.medium,
+        ease: ANIME_EASE.outSoft,
+        delay: stagger(90),
+        autoplay: onScroll({
+          target: rootRef.current!,
+          enter: "bottom top+=12%",
+        }),
+      });
+    });
+
+    return () => scope.revert();
+  }, [reducedMotion, project.id]);
 
   return (
     <article
+      ref={rootRef}
       id={project.id}
-      className={
-        isFeatured
-          ? "rounded-2xl border border-zinc-800/80 bg-linear-to-b from-zinc-900/60 to-zinc-950/40 p-4 sm:rounded-3xl sm:p-6 md:p-8 lg:p-10"
-          : "rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-4 sm:p-6 md:p-8"
-      }
+      className={cn(
+        "relative border-t border-zinc-800/70 pt-12 sm:pt-16",
+        isFeatured && "border-sky-500/20",
+      )}
     >
-      <Reveal>
-        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            {project.label && (
-              <p className="mb-2 text-xs font-medium uppercase tracking-widest text-sky-400/80">
-                {project.label}
-              </p>
-            )}
-            {isFeatured && (
-              <p className="mb-2 text-xs font-medium uppercase tracking-widest text-sky-400">
-                Featured Capstone Project
-              </p>
-            )}
-            <h3 className="text-2xl font-semibold text-zinc-50 sm:text-3xl lg:text-4xl">
-              {project.title}
-            </h3>
-            <p className="mt-2 text-base text-zinc-400">{project.subtitle}</p>
-            <p className="mt-1 text-sm text-zinc-500">{project.role}</p>
-          </div>
-          <div className="flex flex-wrap gap-3 lg:mt-0">
-            {project.liveUrl && (
-              <Button
-                href={project.liveUrl}
-                variant="primary"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 shrink-0 lg:mt-0"
-              >
-                <Globe size={16} />
-                Live Website
-              </Button>
-            )}
-            {project.githubUrl && (
-              <Button
-                href={project.githubUrl}
-                variant="outline"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 shrink-0 lg:mt-0"
-              >
-                <GitHubIcon size={16} />
-                View on GitHub
-              </Button>
-            )}
-          </div>
-        </div>
-      </Reveal>
+      {/* Soft accent wash — featured only */}
+      {isFeatured && (
+        <div
+          className="pointer-events-none absolute -left-4 top-12 h-40 w-px bg-linear-to-b from-sky-400/70 via-sky-400/20 to-transparent sm:-left-6"
+          aria-hidden="true"
+        />
+      )}
 
-      <Reveal delay={0.1}>
-        <p className="mt-6 max-w-3xl text-base leading-relaxed text-zinc-400">
+      <header
+        data-project="block"
+        className={cn(
+          "flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between",
+          !reducedMotion && "opacity-0",
+        )}
+      >
+        <div className="min-w-0 max-w-2xl">
+          <div className="mb-3 flex flex-wrap items-center gap-3">
+            <span className="font-mono text-[11px] text-sky-400/80">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+              {isFeatured
+                ? "Featured Capstone"
+                : project.label ?? "Project"}
+            </p>
+          </div>
+
+          <h3 className="text-balance text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl lg:text-[2.75rem]">
+            {project.title}
+          </h3>
+          <p className="mt-2 text-base text-zinc-400 sm:text-lg">
+            {project.subtitle}
+          </p>
+          <p className="mt-1 text-sm text-zinc-500">{project.role}</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2.5">
+          {project.liveUrl && (
+            <Button
+              href={project.liveUrl}
+              variant="primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Globe size={16} />
+              Live Website
+            </Button>
+          )}
+          {project.githubUrl && (
+            <Button
+              href={project.githubUrl}
+              variant="outline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <GitHubIcon size={16} />
+              GitHub
+            </Button>
+          )}
+        </div>
+      </header>
+
+      <div
+        data-project="block"
+        className={cn("mt-8 max-w-3xl", !reducedMotion && "opacity-0")}
+      >
+        <p className="text-base leading-relaxed text-zinc-400">
           {project.summary}
         </p>
         {project.team && (
-          <p className="mt-3 text-sm text-zinc-500">
+          <p className="mt-3 text-sm leading-relaxed text-zinc-500">
             {project.team}. {project.teamNotes}
           </p>
         )}
-      </Reveal>
+      </div>
 
-      <div className="mt-10 grid items-start gap-6 sm:gap-8 md:grid-cols-2 md:gap-10">
-        <Reveal delay={0.15}>
+      {/* Visual + architecture — open layout, no nested cards */}
+      <div
+        data-project="block"
+        className={cn(
+          "mt-12 grid items-start gap-10 md:grid-cols-2 md:gap-12 lg:gap-16",
+          !reducedMotion && "opacity-0",
+        )}
+      >
+        <div>
           {project.screenshotSrc && project.additionalScreenshots?.length ? (
             <ProjectScreenshots project={project} section="mobile" />
           ) : (
             <ProjectScreenshots project={project} featured={isFeatured} />
           )}
-        </Reveal>
+        </div>
 
-        <Reveal delay={0.2}>
-          <div className="h-full">
-            <p className="mb-3 text-xs font-medium uppercase tracking-widest text-zinc-500">
-              System Architecture
-            </p>
-            <div className="flex min-h-[280px] flex-col rounded-2xl border border-zinc-800/80 bg-zinc-950/50 p-3 sm:min-h-[320px] sm:p-4 md:min-h-[360px] md:p-6">
-              <ArchitectureFlow
-                flowId={`${project.id}-architecture`}
-                steps={project.architecture}
-                className="flex-1"
-              />
-            </div>
-          </div>
-        </Reveal>
+        <div>
+          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+            System Architecture
+          </p>
+          <ArchitectureFlow
+            flowId={`${project.id}-architecture`}
+            steps={project.architecture}
+          />
+        </div>
       </div>
 
-      {project.webScreenshot && project.additionalScreenshots?.length && (
-        <Reveal delay={0.22} className="mt-8">
+      {project.webScreenshot && project.additionalScreenshots?.length ? (
+        <div
+          data-project="block"
+          className={cn("mt-12", !reducedMotion && "opacity-0")}
+        >
           <ProjectScreenshots project={project} section="web" />
-        </Reveal>
-      )}
+        </div>
+      ) : null}
 
-      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Contributions — flat columns, no glass cards */}
+      <div
+        data-project="block"
+        className={cn(
+          "mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12",
+          !reducedMotion && "opacity-0",
+        )}
+      >
         {project.contributions.map((section) => (
-          <Reveal key={section.title} delay={0.25}>
-            <GlassCard hover>
-              <h4 className="mb-3 text-sm font-medium text-zinc-200">
-                {section.title}
-              </h4>
-              <ul className="space-y-2">
-                {section.items.map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-start gap-2 text-sm text-zinc-400"
-                  >
-                    <ExternalLink
-                      size={14}
-                      className="mt-0.5 shrink-0 text-sky-500/60"
-                      aria-hidden="true"
-                    />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </GlassCard>
-          </Reveal>
+          <div key={section.title}>
+            <h4 className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-sky-400/80">
+              {section.title}
+            </h4>
+            <ul className="space-y-2.5">
+              {section.items.map((item) => (
+                <li
+                  key={item}
+                  className="flex items-start gap-2.5 text-sm leading-relaxed text-zinc-400"
+                >
+                  <Check
+                    size={14}
+                    className="mt-0.5 shrink-0 text-sky-400/70"
+                    aria-hidden="true"
+                  />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
         ))}
       </div>
 
-      {project.features && (
-        <Reveal delay={0.3} className="mt-8">
-          <h4 className="mb-3 text-sm font-medium text-zinc-300">Features</h4>
-          <div className="flex flex-wrap gap-2">
-            {project.features.map((feature) => (
-              <span
-                key={feature}
-                className="rounded-md border border-zinc-800 bg-zinc-900/50 px-3 py-1.5 text-xs text-zinc-400"
-              >
-                {feature}
-              </span>
-            ))}
-          </div>
-        </Reveal>
+      {project.features && project.features.length > 0 && (
+        <div
+          data-project="block"
+          className={cn("mt-12", !reducedMotion && "opacity-0")}
+        >
+          <h4 className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-500">
+            Features
+          </h4>
+          <p className="max-w-3xl text-sm leading-relaxed text-zinc-400">
+            {project.features.join(" · ")}
+          </p>
+        </div>
       )}
 
-      <Reveal delay={0.35} className="mt-8">
+      <div
+        data-project="block"
+        className={cn("mt-10", !reducedMotion && "opacity-0")}
+      >
         <ProjectTech technologies={project.technologies} />
-      </Reveal>
+      </div>
     </article>
   );
 }

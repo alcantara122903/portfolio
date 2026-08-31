@@ -33,24 +33,22 @@ export function ProjectScreenshots({
     ];
 
     return (
-      <div className="h-full">
-        <p className="mb-3 text-xs font-medium uppercase tracking-widest text-zinc-500">
+      <div>
+        <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
           Mobile Application
         </p>
-        <div className="flex h-full min-h-[280px] flex-col rounded-2xl border border-zinc-800/80 bg-zinc-950/50 p-3 sm:min-h-[320px] sm:p-4 md:min-h-[360px] md:p-5">
-          <div className="-mx-1 flex flex-1 items-end justify-start gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scroll-px-2 sm:mx-0 sm:justify-center sm:gap-4 sm:overflow-visible md:gap-6">
-            {mobileShots.map((shot) => (
-              <DeviceMockup
-                key={shot.src}
-                variant="mobile"
-                size="compact"
-                imageSrc={shot.src}
-                imageAlt={shot.alt}
-                label={shot.label}
-                className="shrink-0 snap-center"
-              />
-            ))}
-          </div>
+        <div className="-mx-1 flex items-end justify-start gap-4 overflow-x-auto pb-1 snap-x snap-mandatory sm:mx-0 sm:justify-center sm:gap-5 sm:overflow-visible md:gap-6">
+          {mobileShots.map((shot) => (
+            <DeviceMockup
+              key={shot.src}
+              variant="mobile"
+              size="compact"
+              imageSrc={shot.src}
+              imageAlt={shot.alt}
+              label={shot.label}
+              className="shrink-0 snap-center"
+            />
+          ))}
         </div>
       </div>
     );
@@ -71,50 +69,45 @@ export function ProjectScreenshots({
     ];
 
     return (
-      <div>
-        <p className="mb-3 text-xs font-medium uppercase tracking-widest text-zinc-500">
-          Web Platform
-        </p>
-        <div className="grid gap-5 md:grid-cols-2 md:items-stretch md:gap-6 lg:gap-8">
-          <div className="flex flex-col rounded-2xl border border-zinc-800/80 bg-zinc-950/50 p-4 sm:p-5">
-            <div className="flex flex-1 flex-col justify-center gap-4 sm:gap-5">
-              {webShots.map((shot) => (
-                <DeviceMockup
-                  key={shot.src}
-                  variant="browser"
-                  size="gallery"
-                  imageSrc={shot.src}
-                  imageAlt={shot.alt}
-                  label={shot.label}
-                />
-              ))}
-            </div>
+      <div className="space-y-10">
+        <div>
+          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+            Web Platform
+          </p>
+          <div className="grid gap-5 sm:gap-6 lg:grid-cols-2">
+            {webShots.map((shot) => (
+              <DeviceMockup
+                key={shot.src}
+                variant="browser"
+                size="gallery"
+                imageSrc={shot.src}
+                imageAlt={shot.alt}
+                label={shot.label}
+              />
+            ))}
           </div>
-
-          {project.webStackLayers && project.webStackLayers.length > 0 && (
-            <div className="flex flex-col rounded-2xl border border-zinc-800/80 bg-zinc-950/50 p-4 sm:p-6">
-              <p className="mb-4 text-xs font-medium uppercase tracking-widest text-zinc-500">
-                Web Stack
-              </p>
-              <div className="flex flex-1 items-center">
-                <ArchitectureFlow
-                  flowId={`${project.id}-web-stack`}
-                  steps={project.webStackLayers.map((item) => ({
-                    label: `${item.layer} · ${item.technology}`,
-                  }))}
-                  className="w-full"
-                />
-              </div>
-            </div>
-          )}
         </div>
+
+        {project.webStackLayers && project.webStackLayers.length > 0 && (
+          <div className="max-w-xl">
+            <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+              Web Stack
+            </p>
+            <ArchitectureFlow
+              flowId={`${project.id}-web-stack`}
+              steps={project.webStackLayers.map((item) => ({
+                label: `${item.layer} · ${item.technology}`,
+              }))}
+            />
+          </div>
+        )}
       </div>
     );
   }
 
   if (hasMobileGallery && section === "single") {
     return (
-      <div className="space-y-6">
+      <div className="space-y-10">
         <ProjectScreenshots project={project} section="mobile" />
         {project.webScreenshot && (
           <ProjectScreenshots project={project} section="web" />

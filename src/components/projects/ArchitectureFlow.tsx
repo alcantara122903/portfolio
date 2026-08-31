@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { animate, createScope, onScroll, stagger } from "animejs";
+import { ANIME_DURATION, ANIME_EASE } from "@/lib/anime";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
 
@@ -18,24 +19,39 @@ export function ArchitectureFlow({
   vertical = true,
   flowId = "flow",
 }: ArchitectureFlowProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (reducedMotion || !rootRef.current) return;
+
+    const scope = createScope({ root: rootRef }).add(() => {
+      animate('[data-flow="step"]', {
+        opacity: [0, 1],
+        y: [12, 0],
+        duration: ANIME_DURATION.fast,
+        ease: ANIME_EASE.outSoft,
+        delay: stagger(70),
+        autoplay: onScroll({
+          target: rootRef.current!,
+          enter: "bottom top+=18%",
+        }),
+      });
+    });
+
+    return () => scope.revert();
+  }, [reducedMotion, steps, flowId]);
 
   if (!vertical) {
     return (
-      <div className={cn("flex flex-wrap items-center gap-2", className)}>
+      <div ref={rootRef} className={cn("flex flex-wrap items-center gap-2", className)}>
         {steps.map((step, index) => (
-          <div key={step.label} className="flex items-center gap-2">
-            <FlowBox
-              label={step.label}
-              highlighted={index === 0 || index === hoveredIndex}
-              reducedMotion={reducedMotion}
-              pulseId={`${flowId}-${index}`}
-              onHover={() => setHoveredIndex(index)}
-              onLeave={() => setHoveredIndex(null)}
-            />
+          <div key={`${flowId}-${step.label}`} className="flex items-center gap-2">
+            <FlowStep label={step.label} index={index} accent={index === 0} />
             {index < steps.length - 1 && (
-              <span className="text-zinc-600">→</span>
+              <span className="text-sky-500/40" aria-hidden="true">
+                →
+              </span>
             )}
           </div>
         ))}
@@ -44,71 +60,57 @@ export function ArchitectureFlow({
   }
 
   return (
-    <div className={cn("flex w-full flex-col", className)}>
-      {steps.map((step, index) => {
-        const highlighted = index === 0 || index === hoveredIndex;
-
-        return (
-          <div key={step.label} className="flex w-full flex-col items-center">
-            <FlowBox
-              label={step.label}
-              highlighted={highlighted}
-              reducedMotion={reducedMotion}
-              pulseId={`${flowId}-${index}`}
-              onHover={() => setHoveredIndex(index)}
-              onLeave={() => setHoveredIndex(null)}
-            />
-            {index < steps.length - 1 && (
-              <div className="flex flex-col items-center py-1">
-                <div className="h-3 w-px bg-zinc-700" />
-                <span className="text-[10px] leading-none text-zinc-600">↓</span>
-                <div className="h-3 w-px bg-zinc-700" />
-              </div>
-            )}
-          </div>
-        );
-      })}
+    <div ref={rootRef} className={cn("flex w-full flex-col gap-0", className)}>
+      {steps.map((step, index) => (
+        <div
+          key={`${flowId}-${step.label}`}
+          data-flow="step"
+          className={cn(
+            "flex w-full flex-col items-stretch",
+            !reducedMotion && "opacity-0",
+          )}
+        >
+          <FlowStep label={step.label} index={index} accent={index === 0} />
+          {index < steps.length - 1 && (
+            <div className="flex justify-center py-1.5" aria-hidden="true">
+              <div className="h-5 w-px bg-linear-to-b from-sky-400/40 to-zinc-800" />
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
 
-function FlowBox({
+function FlowStep({
   label,
-  highlighted,
-  reducedMotion,
-  pulseId,
-  onHover,
-  onLeave,
+  index,
+  accent,
 }: {
   label: string;
-  highlighted: boolean;
-  reducedMotion: boolean;
-  pulseId: string;
-  onHover: () => void;
-  onLeave: () => void;
+  index: number;
+  accent: boolean;
 }) {
   return (
-    <motion.div
+    <div
       className={cn(
-        "relative w-full rounded-lg border px-3 py-2 text-center text-[9px] font-semibold uppercase leading-snug tracking-wide transition-colors min-[380px]:text-[10px] sm:px-4 sm:py-2.5 sm:text-[11px]",
-        highlighted
-          ? "border-sky-500/60 bg-sky-500/5 text-sky-300 shadow-[0_0_20px_rgba(14,165,233,0.08)]"
-          : "border-zinc-800/80 bg-zinc-900/40 text-zinc-500",
+        "flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors sm:px-4",
+        accent
+          ? "bg-sky-400/8 text-sky-200 ring-1 ring-sky-400/30"
+          : "bg-transparent text-zinc-400 ring-1 ring-zinc-800/60 hover:ring-zinc-700/80",
       )}
-      animate={reducedMotion ? undefined : { scale: highlighted ? 1.01 : 1 }}
-      transition={{ duration: 0.25 }}
-      onMouseEnter={onHover}
-      onMouseLeave={onLeave}
     >
-      {label}
-      {!reducedMotion && highlighted && (
-        <motion.span
-          key={pulseId}
-          className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-sky-400"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-        />
-      )}
-    </motion.div>
+      <span
+        className={cn(
+          "font-mono text-[10px] tabular-nums",
+          accent ? "text-sky-400" : "text-zinc-600",
+        )}
+      >
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <span className="text-left text-[10px] font-medium uppercase leading-snug tracking-[0.12em] sm:text-[11px]">
+        {label}
+      </span>
+    </div>
   );
 }

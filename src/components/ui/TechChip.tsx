@@ -10,10 +10,10 @@ export function TechChip({ label, className, active }: TechChipProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+        "inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-medium tracking-wide transition-colors",
         active
-          ? "border-sky-500/40 bg-sky-500/10 text-sky-300"
-          : "border-zinc-700/70 bg-zinc-900/50 text-zinc-300 hover:border-zinc-600",
+          ? "border-sky-400/50 bg-sky-400/10 text-sky-300 shadow-[0_0_20px_-8px_rgba(56,189,248,0.45)]"
+          : "border-zinc-800 bg-zinc-950/70 text-zinc-300 hover:border-sky-500/30 hover:text-zinc-100",
         className,
       )}
     >
