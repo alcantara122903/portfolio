@@ -5,9 +5,9 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function EducationSection() {
   return (
-    <section id="journey" className="py-24 sm:py-32">
+    <section id="education" className="py-24 sm:py-32">
       <Container>
-        <SectionHeading eyebrow="Journey" title="Education" />
+        <SectionHeading eyebrow="Academic path" title="Education" />
 
         <div className="relative mt-14">
           <div

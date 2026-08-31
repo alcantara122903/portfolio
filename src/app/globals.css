@@ -50,3 +50,15 @@ body {
 :focus-visible {
   outline: none;
 }
+
+/* Custom Systems Lab cursor — desktop / fine pointer only */
+html.custom-cursor-active,
+html.custom-cursor-active * {
+  cursor: none !important;
+}
+
+html.custom-cursor-active a,
+html.custom-cursor-active button,
+html.custom-cursor-active [role="button"] {
+  cursor: none !important;
+}

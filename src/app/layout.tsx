@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { SITE_URL } from "@/lib/constants";
 import { portfolio } from "@/data/portfolio";
 import { LoadingScreen } from "@/components/loading/LoadingScreen";
+import { CustomCursor } from "@/components/cursor/CustomCursor";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -67,6 +68,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="flex min-h-dvh flex-col bg-zinc-950 text-zinc-100 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+        <CustomCursor />
         <LoadingScreen />
         {children}
       </body>

@@ -6,7 +6,7 @@ export const SECTION_IDS = {
   projects: "projects",
   skills: "skills",
   process: "process",
-  journey: "journey",
+  education: "education",
   contact: "contact",
 } as const;
 
