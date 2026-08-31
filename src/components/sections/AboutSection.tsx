@@ -1,5 +1,6 @@
 import { portfolio } from "@/data/portfolio";
 import { Reveal } from "@/components/animations/Reveal";
+import { ScrollReveal3D } from "@/components/animations/ScrollReveal3D";
 import { Container } from "@/components/layout/Container";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -57,8 +58,9 @@ export function AboutSection() {
             </Reveal>
           </div>
 
-          <Reveal delay={0.3} className="lg:col-span-2">
-            <GlassCard className="space-y-5">
+          <ScrollReveal3D className="lg:col-span-2" depth="subtle">
+            <Reveal delay={0.3}>
+              <GlassCard className="space-y-5">
               {profileFields.map((field) => (
                 <div key={field.label}>
                   <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
@@ -69,8 +71,9 @@ export function AboutSection() {
                   </p>
                 </div>
               ))}
-            </GlassCard>
-          </Reveal>
+              </GlassCard>
+            </Reveal>
+          </ScrollReveal3D>
         </div>
       </Container>
     </section>

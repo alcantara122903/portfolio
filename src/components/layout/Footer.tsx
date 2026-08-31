@@ -4,7 +4,7 @@ import { Container } from "@/components/layout/Container";
 
 export function Footer() {
   return (
-    <footer className="border-t border-zinc-800/80 bg-zinc-950">
+    <footer className="relative z-10 border-t border-zinc-800/80 bg-zinc-950">
       <Container className="flex flex-col gap-4 py-10 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-medium text-zinc-200">

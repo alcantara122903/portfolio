@@ -2,13 +2,14 @@
 
 import { useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, PerspectiveCamera } from "@react-three/drei";
+import { PerspectiveCamera } from "@react-three/drei";
 import { HERO_TECH_NODES } from "@/lib/constants";
 import { DeveloperDevice } from "@/components/three/DeveloperDevice";
+import { FloatingGem } from "@/components/three/FloatingGem";
 import { TechNodeRing } from "@/components/three/TechNode";
 import { DataFlowLines } from "@/components/three/ConnectionLine";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import type { Group, Mesh } from "three";
+import type { Group } from "three";
 
 function SceneBackdrop() {
   return (
@@ -29,53 +30,22 @@ function SceneBackdrop() {
   );
 }
 
-function FloatingGem({
-  position,
-  scale = 1,
-  color = "#38bdf8",
-  wireframe = false,
-  speed = 1,
+function SceneContent({
+  mouse,
+  scrollProgressRef,
 }: {
-  position: [number, number, number];
-  scale?: number;
-  color?: string;
-  wireframe?: boolean;
-  speed?: number;
+  mouse: { x: number; y: number };
+  scrollProgressRef?: React.MutableRefObject<number>;
 }) {
-  const ref = useRef<Mesh>(null);
-
-  useFrame((state) => {
-    if (!ref.current) return;
-    const t = state.clock.elapsedTime * speed;
-    ref.current.rotation.y = t * 0.5;
-    ref.current.rotation.x = Math.sin(t * 0.6) * 0.25;
-  });
-
-  return (
-    <Float speed={speed * 1.2} rotationIntensity={0.3} floatIntensity={0.5}>
-      <mesh ref={ref} position={position} scale={scale}>
-        <octahedronGeometry args={[0.22, 0]} />
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={wireframe ? 0.45 : 0.65}
-          metalness={0.4}
-          roughness={0.2}
-          wireframe={wireframe}
-          transparent={!wireframe}
-          opacity={wireframe ? 1 : 0.92}
-        />
-      </mesh>
-    </Float>
-  );
-}
-
-function SceneContent({ mouse }: { mouse: { x: number; y: number } }) {
   const ambientGroup = useRef<Group>(null);
 
   useFrame((state) => {
     if (!ambientGroup.current) return;
-    ambientGroup.current.rotation.y = state.clock.elapsedTime * 0.015;
+    const scroll = scrollProgressRef?.current ?? 0;
+    ambientGroup.current.rotation.y =
+      state.clock.elapsedTime * 0.015 + scroll * 0.35;
+    ambientGroup.current.rotation.x = scroll * 0.18;
+    ambientGroup.current.position.y = -scroll * 0.25;
   });
 
   return (
@@ -125,7 +95,11 @@ function SceneContent({ mouse }: { mouse: { x: number; y: number } }) {
   );
 }
 
-export function HeroScene() {
+export function HeroScene({
+  scrollProgressRef,
+}: {
+  scrollProgressRef?: React.MutableRefObject<number>;
+}) {
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const reducedMotion = useReducedMotion();
 
@@ -152,7 +126,7 @@ export function HeroScene() {
         gl={{ antialias: true, alpha: false }}
         className="absolute! inset-0"
       >
-        <SceneContent mouse={mouse} />
+        <SceneContent mouse={mouse} scrollProgressRef={scrollProgressRef} />
       </Canvas>
 
       <div className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 flex-col gap-6 text-[10px] font-medium uppercase tracking-[0.15em] text-zinc-500 lg:flex">

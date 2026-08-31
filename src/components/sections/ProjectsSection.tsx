@@ -1,5 +1,6 @@
 import { portfolio } from "@/data/portfolio";
 import { Reveal } from "@/components/animations/Reveal";
+import { ScrollReveal3D } from "@/components/animations/ScrollReveal3D";
 import { Container } from "@/components/layout/Container";
 import { ProjectShowcase } from "@/components/projects/ProjectShowcase";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -21,11 +22,15 @@ export function ProjectsSection() {
 
         <div className="mt-14 space-y-16">
           {featured.map((project) => (
-            <ProjectShowcase key={project.id} project={project} />
+            <ScrollReveal3D key={project.id}>
+              <ProjectShowcase project={project} />
+            </ScrollReveal3D>
           ))}
 
           {others.map((project) => (
-            <ProjectShowcase key={project.id} project={project} />
+            <ScrollReveal3D key={project.id} depth="subtle">
+              <ProjectShowcase project={project} />
+            </ScrollReveal3D>
           ))}
         </div>
       </Container>

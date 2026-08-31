@@ -1,10 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Suspense } from "react";
+import { Suspense, useRef } from "react";
 import { FileText, ArrowDown } from "lucide-react";
 import { portfolio } from "@/data/portfolio";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useScrollProgressRef } from "@/hooks/useScrollProgressRef";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { MagneticButton } from "@/components/animations/MagneticButton";
 import { Container } from "@/components/layout/Container";
@@ -27,9 +28,15 @@ export function HeroSection() {
   const github = socials.find((s) => s.icon === "github");
   const isMobile = useMediaQuery("(max-width: 640px)");
   const showScene = !isMobile;
+  const sectionRef = useRef<HTMLElement>(null);
+  const { progressRef } = useScrollProgressRef(sectionRef, [
+    "start start",
+    "end start",
+  ]);
 
   return (
     <section
+      ref={sectionRef}
       id="home"
       className="relative min-h-dvh overflow-hidden pt-20 pb-12 sm:pt-24 sm:pb-16 md:pt-28 lg:pb-24"
     >
@@ -116,7 +123,7 @@ export function HeroSection() {
           <FadeIn delay={0.3} className="relative min-w-0">
             {showScene ? (
               <Suspense fallback={<SceneFallback />}>
-                <HeroScene />
+                <HeroScene scrollProgressRef={progressRef} />
               </Suspense>
             ) : (
               <SceneFallback />

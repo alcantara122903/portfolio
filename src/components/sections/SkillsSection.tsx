@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { portfolio } from "@/data/portfolio";
 import { Reveal } from "@/components/animations/Reveal";
+import { ScrollReveal3D } from "@/components/animations/ScrollReveal3D";
 import { Container } from "@/components/layout/Container";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -48,8 +49,9 @@ export function SkillsSection() {
           </Reveal>
 
           <div className="space-y-8">
-            <Reveal delay={0.15}>
-              <GlassCard>
+              <ScrollReveal3D depth="subtle">
+                <Reveal delay={0.15}>
+                  <GlassCard>
                 <h3 className="mb-4 text-sm font-medium uppercase tracking-widest text-zinc-500">
                   Technology Relationships
                 </h3>
@@ -84,11 +86,13 @@ export function SkillsSection() {
                     ))}
                   </div>
                 )}
-              </GlassCard>
-            </Reveal>
+                  </GlassCard>
+                </Reveal>
+              </ScrollReveal3D>
 
-            <Reveal delay={0.2}>
-              <GlassCard>
+              <ScrollReveal3D depth="subtle">
+                <Reveal delay={0.2}>
+                  <GlassCard>
                 <h3 className="mb-4 text-sm font-medium uppercase tracking-widest text-zinc-500">
                   Portfolio Build Stack
                 </h3>
@@ -110,8 +114,9 @@ export function SkillsSection() {
                     </div>
                   ))}
                 </div>
-              </GlassCard>
-            </Reveal>
+                  </GlassCard>
+                </Reveal>
+              </ScrollReveal3D>
           </div>
         </div>
       </Container>

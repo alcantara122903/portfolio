@@ -1,18 +1,27 @@
 "use client";
 
+import { useRef } from "react";
 import { portfolio } from "@/data/portfolio";
 import { Reveal } from "@/components/animations/Reveal";
+import { ScrollReveal3D } from "@/components/animations/ScrollReveal3D";
 import { Container } from "@/components/layout/Container";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { ProcessScrollScene } from "@/components/three/ProcessScrollScene";
+import { useScrollProgressRef } from "@/hooks/useScrollProgressRef";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { motion } from "framer-motion";
 
 export function ProcessSection() {
   const reducedMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const { progressRef } = useScrollProgressRef(sectionRef, [
+    "start 0.85",
+    "end 0.25",
+  ]);
 
   return (
-    <section id="process" className="py-24 sm:py-32">
+    <section id="process" ref={sectionRef} className="relative py-24 sm:py-32">
       <Container>
         <Reveal>
           <SectionHeading
@@ -20,6 +29,8 @@ export function ProcessSection() {
             title="FROM PROBLEM TO WORKING SYSTEM."
           />
         </Reveal>
+
+        <ProcessScrollScene progressRef={progressRef} />
 
         <div className="relative mt-14">
           <div
@@ -37,19 +48,21 @@ export function ProcessSection() {
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {portfolio.process.map((step, index) => (
-              <Reveal key={step.number} delay={index * 0.1}>
-                <GlassCard hover className="relative h-full">
-                  <span className="text-3xl font-light text-zinc-700">
-                    {step.number}
-                  </span>
-                  <h3 className="mt-3 text-lg font-semibold uppercase tracking-wide text-zinc-100">
-                    {step.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-                    {step.description}
-                  </p>
-                </GlassCard>
-              </Reveal>
+              <ScrollReveal3D key={step.number} depth="subtle">
+                <Reveal delay={index * 0.1}>
+                  <GlassCard hover className="relative h-full">
+                    <span className="text-3xl font-light text-zinc-700">
+                      {step.number}
+                    </span>
+                    <h3 className="mt-3 text-lg font-semibold uppercase tracking-wide text-zinc-100">
+                      {step.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+                      {step.description}
+                    </p>
+                  </GlassCard>
+                </Reveal>
+              </ScrollReveal3D>
             ))}
           </div>
         </div>
