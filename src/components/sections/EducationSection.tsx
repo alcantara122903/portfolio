@@ -7,9 +7,7 @@ export function EducationSection() {
   return (
     <section id="journey" className="py-24 sm:py-32">
       <Container>
-        <Reveal>
-          <SectionHeading eyebrow="Journey" title="Education" />
-        </Reveal>
+        <SectionHeading eyebrow="Journey" title="Education" />
 
         <div className="relative mt-14">
           <div
@@ -20,8 +18,14 @@ export function EducationSection() {
           <div className="space-y-10">
             {portfolio.education.map((entry, index) => (
               <Reveal key={entry.institution} delay={index * 0.1}>
-                <div className="relative flex gap-6 sm:gap-8">
-                  <div className="relative z-10 mt-1.5 h-3.5 w-3.5 shrink-0 rounded-full border-2 border-sky-500/60 bg-zinc-950 sm:h-4 sm:w-4" />
+                <div
+                  data-anime="timeline-item"
+                  className="relative flex gap-6 sm:gap-8"
+                >
+                  <div
+                    data-anime="timeline-dot"
+                    className="relative z-10 mt-1.5 h-3.5 w-3.5 shrink-0 rounded-full border-2 border-sky-500/60 bg-zinc-950 sm:h-4 sm:w-4"
+                  />
                   <div className="pb-2">
                     <p className="text-xs font-medium uppercase tracking-widest text-sky-400/80">
                       {entry.period}

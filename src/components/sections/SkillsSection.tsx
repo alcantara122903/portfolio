@@ -18,12 +18,10 @@ export function SkillsSection() {
   return (
     <section id="skills" className="py-24 sm:py-32">
       <Container>
-        <Reveal>
-          <SectionHeading
+        <SectionHeading
             eyebrow="Tech Stack"
             title="THE TOOLS BEHIND THE BUILD."
           />
-        </Reveal>
 
         <div className="mt-14 grid gap-10 lg:grid-cols-2">
           <Reveal delay={0.1}>
@@ -33,7 +31,7 @@ export function SkillsSection() {
               </h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 {portfolio.skills.map((category) => (
-                  <GlassCard key={category.title} hover>
+                  <GlassCard key={category.title} hover scrollAnime>
                     <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-sky-400/80">
                       {category.title}
                     </h4>

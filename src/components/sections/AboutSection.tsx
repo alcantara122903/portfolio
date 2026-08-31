@@ -17,12 +17,10 @@ export function AboutSection() {
   return (
     <section id="about" className="py-24 sm:py-32">
       <Container>
-        <Reveal>
-          <SectionHeading
+        <SectionHeading
             eyebrow="About"
             title="I BUILD MORE THAN INTERFACES. I BUILD THE SYSTEM BEHIND THEM."
           />
-        </Reveal>
 
         <div className="mt-12 grid gap-10 lg:grid-cols-5 lg:gap-16">
           <div className="space-y-5 lg:col-span-3">

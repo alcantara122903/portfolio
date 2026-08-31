@@ -9,12 +9,10 @@ export function GitHubSection() {
   return (
     <section className="py-24 sm:py-32">
       <Container>
-        <Reveal>
-          <SectionHeading
+        <SectionHeading
             eyebrow="Developer"
             title="CODE. TEST. LEARN. REPEAT."
           />
-        </Reveal>
 
         <Reveal delay={0.1} className="mt-10">
           <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 font-mono text-sm shadow-2xl">

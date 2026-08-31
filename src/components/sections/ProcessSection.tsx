@@ -9,11 +9,8 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProcessScrollScene } from "@/components/three/ProcessScrollScene";
 import { useScrollProgressRef } from "@/hooks/useScrollProgressRef";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { motion } from "framer-motion";
 
 export function ProcessSection() {
-  const reducedMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const { progressRef } = useScrollProgressRef(sectionRef, [
     "start 0.85",
@@ -23,12 +20,10 @@ export function ProcessSection() {
   return (
     <section id="process" ref={sectionRef} className="relative py-24 sm:py-32">
       <Container>
-        <Reveal>
-          <SectionHeading
-            eyebrow="Process"
-            title="FROM PROBLEM TO WORKING SYSTEM."
-          />
-        </Reveal>
+        <SectionHeading
+          eyebrow="Process"
+          title="FROM PROBLEM TO WORKING SYSTEM."
+        />
 
         <ProcessScrollScene progressRef={progressRef} />
 
@@ -37,20 +32,17 @@ export function ProcessSection() {
             className="absolute left-0 right-0 top-1/2 hidden h-px -translate-y-1/2 bg-linear-to-r from-transparent via-sky-500/30 to-transparent lg:block"
             aria-hidden="true"
           />
-          {!reducedMotion && (
-            <motion.div
-              className="absolute left-0 top-1/2 hidden h-px w-24 -translate-y-1/2 bg-sky-400 lg:block"
-              animate={{ x: ["0%", "800%"] }}
-              transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
-              aria-hidden="true"
-            />
-          )}
+          <div
+            data-anime="process-beam"
+            className="absolute left-0 top-1/2 hidden h-px w-24 -translate-y-1/2 bg-sky-400 lg:block"
+            aria-hidden="true"
+          />
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {portfolio.process.map((step, index) => (
               <ScrollReveal3D key={step.number} depth="subtle">
                 <Reveal delay={index * 0.1}>
-                  <GlassCard hover className="relative h-full">
+                  <GlassCard hover scrollAnime className="relative h-full">
                     <span className="text-3xl font-light text-zinc-700">
                       {step.number}
                     </span>

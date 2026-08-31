@@ -4,11 +4,18 @@ interface GlassCardProps {
   children: React.ReactNode;
   className?: string;
   hover?: boolean;
+  scrollAnime?: boolean;
 }
 
-export function GlassCard({ children, className, hover = false }: GlassCardProps) {
+export function GlassCard({
+  children,
+  className,
+  hover = false,
+  scrollAnime = false,
+}: GlassCardProps) {
   return (
     <div
+      data-anime={scrollAnime ? "card" : undefined}
       className={cn(
         "rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 backdrop-blur-sm",
         hover &&

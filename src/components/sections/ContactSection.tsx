@@ -15,13 +15,11 @@ export function ContactSection() {
   return (
     <section id="contact" className="py-24 sm:py-32">
       <Container>
-        <Reveal>
-          <SectionHeading
+        <SectionHeading
             eyebrow="Contact"
             title="LET'S BUILD SOMETHING THAT WORKS."
             subtitle="I'm currently looking for internship opportunities in software development, mobile development, web development, and related IT roles. If you're building something interesting, I'd love to hear about it."
           />
-        </Reveal>
 
         <Reveal delay={0.1} className="mt-10 max-w-xl space-y-4">
           <div>

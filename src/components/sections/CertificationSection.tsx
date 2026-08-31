@@ -11,12 +11,10 @@ export function CertificationSection() {
   return (
     <section className="py-24 sm:py-32">
       <Container>
-        <Reveal>
-          <SectionHeading eyebrow="Credentials" title="Certification" />
-        </Reveal>
+        <SectionHeading eyebrow="Credentials" title="Certification" />
 
         <Reveal delay={0.1} className="mt-10 max-w-2xl">
-          <GlassCard className="relative overflow-hidden">
+          <GlassCard scrollAnime className="relative overflow-hidden">
             <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-sky-500/5 blur-2xl" />
             <div className="flex items-start gap-4">
               <div className="rounded-xl border border-sky-500/20 bg-sky-500/10 p-3">

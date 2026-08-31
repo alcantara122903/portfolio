@@ -45,6 +45,11 @@
     animation: dataPulse 2.5s ease-in-out infinite;
   }
 
+  [data-anime="card"] {
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+  }
+
   @keyframes dataPulse {
     0%,
     100% {

@@ -12,13 +12,11 @@ export function ProjectsSection() {
   return (
     <section id="projects" className="py-24 sm:py-32">
       <Container>
-        <Reveal>
-          <SectionHeading
+        <SectionHeading
             eyebrow="Projects"
             title="Systems I've Built"
             subtitle="Academic projects focused on real workflows — from mobile interfaces to APIs and databases."
           />
-        </Reveal>
 
         <div className="mt-14 space-y-16">
           {featured.map((project) => (
