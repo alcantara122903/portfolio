@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Download } from "lucide-react";
+import { Suspense } from "react";
+import { ArrowLeft } from "lucide-react";
 import { portfolio } from "@/data/portfolio";
-import { GMAIL_COMPOSE_URL, LINKEDIN_URL, RESUME_PDF_FILENAME } from "@/lib/contact";
-import { Button } from "@/components/ui/Button";
+import { GMAIL_COMPOSE_URL, LINKEDIN_URL } from "@/lib/contact";
+import { ResumePrintTrigger } from "@/components/resume/ResumePrintTrigger";
+import { DownloadResumeButton } from "@/components/ui/DownloadResumeButton";
 
 export const metadata: Metadata = {
   title: "Résumé | Ivan Alcantara",
@@ -18,6 +20,9 @@ export default function ResumePage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 print:bg-white print:text-black">
+      <Suspense fallback={null}>
+        <ResumePrintTrigger />
+      </Suspense>
       <div className="mx-auto max-w-3xl px-6 py-10 print:max-w-none print:px-8 print:py-6">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 print:hidden">
           <Link
@@ -27,14 +32,7 @@ export default function ResumePage() {
             <ArrowLeft size={16} />
             Back to Portfolio
           </Link>
-          <Button
-            href={personal.resumePdfPath}
-            download={RESUME_PDF_FILENAME}
-            variant="secondary"
-          >
-            <Download size={16} />
-            Download PDF
-          </Button>
+          <DownloadResumeButton variant="secondary" />
         </div>
 
         <header className="border-b border-zinc-800 pb-6 print:border-zinc-300">
