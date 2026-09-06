@@ -9,7 +9,16 @@ import { FloatingGem } from "@/components/three/FloatingGem";
 import { TechNodeRing } from "@/components/three/TechNode";
 import { DataFlowLines } from "@/components/three/ConnectionLine";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { cn } from "@/lib/utils";
 import type { Group } from "three";
+
+type OrbitState = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  dragging: boolean;
+};
 
 function SceneBackdrop() {
   return (
@@ -31,10 +40,10 @@ function SceneBackdrop() {
 }
 
 function SceneContent({
-  mouse,
+  orbitRef,
   scrollProgressRef,
 }: {
-  mouse: { x: number; y: number };
+  orbitRef: React.MutableRefObject<OrbitState>;
   scrollProgressRef?: React.MutableRefObject<number>;
 }) {
   const ambientGroup = useRef<Group>(null);
@@ -67,10 +76,10 @@ function SceneContent({
         color="#67e8f9"
       />
 
-      <group ref={ambientGroup}>
-        <DeveloperDevice mouse={mouse} />
+      {/* Phone orbits independently for full 360 drag */}
+      <DeveloperDevice orbitRef={orbitRef} />
 
-        {/* Hero gems — large diamond left, accents around phone */}
+      <group ref={ambientGroup}>
         <FloatingGem position={[-1.35, 0.05, 0.35]} scale={1.15} color="#22d3ee" />
         <FloatingGem
           position={[-0.55, 0.95, -0.15]}
@@ -100,61 +109,77 @@ export function HeroScene({
 }: {
   scrollProgressRef?: React.MutableRefObject<number>;
 }) {
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const reducedMotion = useReducedMotion();
+  const [dragging, setDragging] = useState(false);
+  const orbitRef = useRef<OrbitState>({
+    x: 0.12,
+    y: -0.45,
+    vx: 0,
+    vy: 0,
+    dragging: false,
+  });
+  const lastPointer = useRef({ x: 0, y: 0 });
 
-  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (reducedMotion) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
-    const y = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
-    setMouse({ x, y: -y });
+    orbitRef.current.dragging = true;
+    orbitRef.current.vx = 0;
+    orbitRef.current.vy = 0;
+    lastPointer.current = { x: event.clientX, y: event.clientY };
+    setDragging(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (reducedMotion || !orbitRef.current.dragging) return;
+    const dx = event.clientX - lastPointer.current.x;
+    const dy = event.clientY - lastPointer.current.y;
+    orbitRef.current.y += dx * 0.012;
+    orbitRef.current.x += dy * 0.01;
+    orbitRef.current.vy = dx * 0.012;
+    orbitRef.current.vx = dy * 0.01;
+    lastPointer.current = { x: event.clientX, y: event.clientY };
+  };
+
+  const onPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    orbitRef.current.dragging = false;
+    setDragging(false);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
   };
 
   return (
     <div
-      className="relative h-80 w-full overflow-hidden rounded-2xl border border-zinc-800/70 sm:h-100 lg:h-130"
-      onPointerMove={handlePointerMove}
-      aria-hidden="true"
+      className={cn(
+        "relative h-80 w-full overflow-hidden rounded-2xl border border-zinc-800/70 sm:h-100 lg:h-130",
+        dragging ? "cursor-grabbing" : "cursor-grab",
+      )}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      role="img"
+      aria-label="Interactive 3D phone — drag to rotate"
     >
       <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-sky-950/50 via-zinc-950 to-indigo-950/40" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_55%_45%,rgba(56,189,248,0.14)_0%,transparent_55%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_15%_75%,rgba(129,140,248,0.1)_0%,transparent_50%)]" />
 
+      <p className="pointer-events-none absolute bottom-3 left-0 right-0 text-center font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">
+        Drag to spin
+      </p>
+
       <Canvas
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: false }}
-        className="absolute! inset-0"
+        className="pointer-events-none absolute! inset-0"
       >
-        <SceneContent mouse={mouse} scrollProgressRef={scrollProgressRef} />
+        <SceneContent
+          orbitRef={orbitRef}
+          scrollProgressRef={scrollProgressRef}
+        />
       </Canvas>
-
-      <div className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 flex-col gap-6 text-[10px] font-medium uppercase tracking-[0.15em] text-zinc-500 lg:flex">
-        <span className="text-sky-300/80">Mobile App</span>
-        <span className="text-sky-400/70">↓</span>
-        <span className="text-indigo-300/70">REST API</span>
-        <span className="text-sky-400/70">↓</span>
-        <span className="text-emerald-300/70">Database</span>
-      </div>
-
-      <div className="pointer-events-none absolute bottom-2 left-0 right-0 flex flex-wrap justify-center gap-2 px-2">
-        {HERO_TECH_NODES.map((node, i) => (
-          <span
-            key={node}
-            className="rounded-full border border-zinc-700/60 bg-zinc-950/70 px-2 py-0.5 text-[10px] text-zinc-400 backdrop-blur-sm"
-            style={{
-              borderColor:
-                i === 0
-                  ? "rgba(56,189,248,0.3)"
-                  : i === 3
-                    ? "rgba(52,211,153,0.3)"
-                    : undefined,
-            }}
-          >
-            {node}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }

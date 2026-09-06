@@ -1,12 +1,18 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Float, RoundedBox } from "@react-three/drei";
-import type { Group } from "three";
+import { RoundedBox } from "@react-three/drei";
+import type { Group, Mesh } from "three";
 
 interface DeveloperDeviceProps {
-  mouse: { x: number; y: number };
+  orbitRef: React.MutableRefObject<{
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    dragging: boolean;
+  }>;
 }
 
 const W = 0.76;
@@ -17,77 +23,169 @@ const SCREEN_W = W - 0.08;
 const SCREEN_H = H - 0.1;
 const Z_FACE = D / 2 + 0.004;
 
-function ScreenUI() {
+const LANE_X = [-0.16, 0, 0.16] as const;
+
+function PhoneGame() {
+  const player = useRef<Group>(null);
+  const obstacles = useRef<Group>(null);
+  const scoreFlash = useRef<Mesh>(null);
+  const lane = useRef(1);
+  const nextSwitch = useRef(0);
+  const speed = useRef(0.55);
+
+  const obstacleSeeds = useMemo(
+    () =>
+      Array.from({ length: 6 }, (_, i) => ({
+        lane: i % 3,
+        offset: i * 0.42,
+      })),
+    [],
+  );
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+
+    if (t > nextSwitch.current) {
+      lane.current = (lane.current + (Math.random() > 0.5 ? 1 : 2)) % 3;
+      nextSwitch.current = t + 0.85 + Math.random() * 0.7;
+    }
+
+    if (player.current) {
+      const targetX = LANE_X[lane.current];
+      player.current.position.x +=
+        (targetX - player.current.position.x) * 0.14;
+      player.current.position.y = -0.38 + Math.sin(t * 8) * 0.012;
+      player.current.rotation.z = Math.sin(t * 6) * 0.08;
+    }
+
+    speed.current = 0.55 + Math.sin(t * 0.2) * 0.08;
+
+    if (obstacles.current) {
+      obstacles.current.children.forEach((child, i) => {
+        const seed = obstacleSeeds[i];
+        const travel = ((t * speed.current + seed.offset) % 1.55) - 0.55;
+        child.position.y = 0.55 - travel;
+        child.position.x = LANE_X[seed.lane];
+        child.visible = child.position.y < 0.62 && child.position.y > -0.55;
+      });
+    }
+
+    if (scoreFlash.current) {
+      const mat = scoreFlash.current.material as {
+        opacity: number;
+      };
+      mat.opacity = 0.35 + Math.sin(t * 4) * 0.15;
+    }
+  });
+
   return (
     <group position={[0, 0, 0.002]}>
-      {/* Status / header bar */}
-      <mesh position={[0, SCREEN_H / 2 - 0.1, 0]}>
-        <planeGeometry args={[SCREEN_W - 0.04, 0.09]} />
-        <meshStandardMaterial
-          color="#0ea5e9"
-          emissive="#38bdf8"
-          emissiveIntensity={0.45}
-        />
+      {/* Game backdrop */}
+      <mesh position={[0, 0, -0.001]}>
+        <planeGeometry args={[SCREEN_W, SCREEN_H]} />
+        <meshBasicMaterial color="#061018" />
       </mesh>
 
-      {/* Hero card */}
-      <mesh position={[0, 0.28, 0]}>
-        <planeGeometry args={[SCREEN_W - 0.06, 0.22]} />
-        <meshStandardMaterial color="#132337" emissive="#0ea5e9" emissiveIntensity={0.06} />
+      {/* Top HUD bar */}
+      <mesh position={[0, SCREEN_H / 2 - 0.09, 0]}>
+        <planeGeometry args={[SCREEN_W - 0.04, 0.1]} />
+        <meshBasicMaterial color="#0b1c2c" />
+      </mesh>
+      <mesh position={[-0.18, SCREEN_H / 2 - 0.09, 0.001]}>
+        <planeGeometry args={[0.2, 0.035]} />
+        <meshBasicMaterial color="#38bdf8" />
+      </mesh>
+      <mesh ref={scoreFlash} position={[0.18, SCREEN_H / 2 - 0.09, 0.001]}>
+        <planeGeometry args={[0.16, 0.028]} />
+        <meshBasicMaterial color="#67e8f9" transparent opacity={0.45} />
       </mesh>
 
-      {/* Content cards row */}
-      {[-0.14, 0.08, 0.3].map((y, i) => (
-        <mesh key={y} position={[0, y, 0]}>
-          <planeGeometry args={[SCREEN_W - 0.08, 0.11]} />
-          <meshStandardMaterial
-            color={i === 0 ? "#1a3352" : "#141c28"}
-            emissive={i === 0 ? "#38bdf8" : "#000000"}
-            emissiveIntensity={i === 0 ? 0.12 : 0}
-          />
+      {/* Lane guides */}
+      {LANE_X.map((x) => (
+        <mesh key={x} position={[x, -0.02, 0]}>
+          <planeGeometry args={[0.01, 0.95]} />
+          <meshBasicMaterial color="#164e63" transparent opacity={0.45} />
         </mesh>
       ))}
 
-      {/* QR scan zone */}
-      <mesh position={[0, -0.12, 0]}>
-        <planeGeometry args={[0.34, 0.34]} />
-        <meshStandardMaterial color="#0f172a" emissive="#38bdf8" emissiveIntensity={0.08} />
-      </mesh>
-      <mesh position={[0, -0.12, 0.001]} rotation={[0, 0, Math.PI / 4]}>
-        <planeGeometry args={[0.22, 0.025]} />
-        <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={0.5} />
-      </mesh>
-      <mesh position={[0, -0.12, 0.001]} rotation={[0, 0, -Math.PI / 4]}>
-        <planeGeometry args={[0.22, 0.025]} />
-        <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={0.5} />
+      {/* Horizon line */}
+      <mesh position={[0, 0.52, 0]}>
+        <planeGeometry args={[SCREEN_W - 0.1, 0.008]} />
+        <meshBasicMaterial color="#22d3ee" transparent opacity={0.5} />
       </mesh>
 
-      {/* Bottom nav */}
+      {/* Obstacles (incoming blocks) */}
+      <group ref={obstacles}>
+        {obstacleSeeds.map((seed, i) => (
+          <mesh key={i} position={[LANE_X[seed.lane], 0.4, 0.001]}>
+            <planeGeometry args={[0.12, 0.1]} />
+            <meshBasicMaterial
+              color={i % 2 === 0 ? "#f472b6" : "#a78bfa"}
+            />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Player ship / gem */}
+      <group ref={player} position={[0, -0.38, 0.002]}>
+        <mesh rotation={[0, 0, Math.PI / 4]}>
+          <planeGeometry args={[0.09, 0.09]} />
+          <meshBasicMaterial color="#38bdf8" />
+        </mesh>
+        <mesh position={[0, -0.05, -0.0005]}>
+          <planeGeometry args={[0.035, 0.1]} />
+          <meshBasicMaterial color="#7dd3fc" transparent opacity={0.35} />
+        </mesh>
+      </group>
+
+      {/* Bottom controls hint */}
       <mesh position={[0, -SCREEN_H / 2 + 0.1, 0]}>
-        <planeGeometry args={[SCREEN_W - 0.04, 0.08]} />
-        <meshStandardMaterial color="#0ea5e9" emissive="#38bdf8" emissiveIntensity={0.35} />
+        <planeGeometry args={[SCREEN_W - 0.04, 0.1]} />
+        <meshBasicMaterial color="#0b1c2c" />
       </mesh>
+      {[-0.14, 0, 0.14].map((x) => (
+        <mesh key={x} position={[x, -SCREEN_H / 2 + 0.1, 0.001]}>
+          <circleGeometry args={[0.022, 12]} />
+          <meshBasicMaterial
+            color={x === 0 ? "#38bdf8" : "#164e63"}
+          />
+        </mesh>
+      ))}
     </group>
   );
 }
 
-export function DeveloperDevice({ mouse }: DeveloperDeviceProps) {
+export function DeveloperDevice({ orbitRef }: DeveloperDeviceProps) {
   const groupRef = useRef<Group>(null);
+  const floatY = useRef(0);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (!groupRef.current) return;
+    const orbit = orbitRef.current;
     const t = state.clock.elapsedTime;
-    groupRef.current.rotation.y =
-      -0.42 + mouse.x * 0.38 + Math.sin(t * 0.28) * 0.06;
-    groupRef.current.rotation.x =
-      mouse.y * 0.22 + Math.cos(t * 0.22) * 0.035;
-    groupRef.current.rotation.z = -0.06 + Math.sin(t * 0.18) * 0.015;
+
+    if (!orbit.dragging) {
+      orbit.y += orbit.vy;
+      orbit.x += orbit.vx;
+      orbit.vy *= 0.94;
+      orbit.vx *= 0.94;
+
+      // Idle auto-spin so it keeps showing all sides
+      if (Math.abs(orbit.vy) < 0.0008) {
+        orbit.y += delta * 0.35;
+      }
+    }
+
+    floatY.current = Math.sin(t * 1.1) * 0.04;
+
+    groupRef.current.rotation.y = orbit.y;
+    groupRef.current.rotation.x = orbit.x;
+    groupRef.current.rotation.z = Math.sin(t * 0.2) * 0.02;
+    groupRef.current.position.y = floatY.current;
   });
 
   return (
-    <Float speed={1.4} rotationIntensity={0.12} floatIntensity={0.45}>
-      <group ref={groupRef} position={[0.05, 0, 0]}>
-        {/* Outer glow shell */}
+    <group ref={groupRef} position={[0.05, 0, 0]}>
         <RoundedBox
           args={[W + 0.018, H + 0.018, D + 0.01]}
           radius={R + 0.01}
@@ -103,7 +201,6 @@ export function DeveloperDevice({ mouse }: DeveloperDeviceProps) {
           />
         </RoundedBox>
 
-        {/* Phone chassis */}
         <RoundedBox args={[W, H, D]} radius={R} smoothness={6} castShadow>
           <meshStandardMaterial
             color="#18181b"
@@ -114,7 +211,6 @@ export function DeveloperDevice({ mouse }: DeveloperDeviceProps) {
           />
         </RoundedBox>
 
-        {/* Side frame highlight */}
         <RoundedBox
           args={[W - 0.012, H - 0.012, D - 0.01]}
           radius={R - 0.01}
@@ -124,7 +220,6 @@ export function DeveloperDevice({ mouse }: DeveloperDeviceProps) {
           <meshStandardMaterial color="#27272a" metalness={0.95} roughness={0.12} />
         </RoundedBox>
 
-        {/* Volume buttons */}
         {[-0.22, -0.12].map((y) => (
           <mesh key={y} position={[-W / 2 - 0.008, y, 0]}>
             <boxGeometry args={[0.014, 0.1, 0.03]} />
@@ -132,13 +227,11 @@ export function DeveloperDevice({ mouse }: DeveloperDeviceProps) {
           </mesh>
         ))}
 
-        {/* Power button */}
         <mesh position={[W / 2 + 0.008, 0.18, 0]}>
           <boxGeometry args={[0.014, 0.14, 0.03]} />
           <meshStandardMaterial color="#3f3f46" metalness={0.8} roughness={0.25} />
         </mesh>
 
-        {/* Screen recess / bezel */}
         <RoundedBox
           args={[SCREEN_W + 0.02, SCREEN_H + 0.02, 0.014]}
           radius={R - 0.015}
@@ -148,33 +241,28 @@ export function DeveloperDevice({ mouse }: DeveloperDeviceProps) {
           <meshStandardMaterial color="#030712" metalness={0.4} roughness={0.65} />
         </RoundedBox>
 
-        {/* Glass screen */}
         <mesh position={[0, 0, Z_FACE + 0.008]}>
           <planeGeometry args={[SCREEN_W, SCREEN_H]} />
           <meshPhysicalMaterial
-            color="#0c1220"
+            color="#061018"
             metalness={0.05}
-            roughness={0.08}
+            roughness={0.12}
             clearcoat={1}
-            clearcoatRoughness={0.1}
-            reflectivity={0.9}
+            clearcoatRoughness={0.12}
             emissive="#0ea5e9"
-            emissiveIntensity={0.02}
+            emissiveIntensity={0.04}
           />
         </mesh>
 
-        {/* On-screen UI */}
         <group position={[0, 0, Z_FACE + 0.012]}>
-          <ScreenUI />
+          <PhoneGame />
         </group>
 
-        {/* Dynamic island */}
         <mesh position={[0, H / 2 - 0.14, Z_FACE + 0.014]} rotation={[0, 0, Math.PI / 2]}>
           <capsuleGeometry args={[0.028, 0.1, 4, 8]} />
           <meshStandardMaterial color="#000000" metalness={0.6} roughness={0.3} />
         </mesh>
 
-        {/* Front camera lens */}
         <mesh position={[0.04, H / 2 - 0.14, Z_FACE + 0.018]}>
           <circleGeometry args={[0.012, 16]} />
           <meshStandardMaterial
@@ -185,7 +273,6 @@ export function DeveloperDevice({ mouse }: DeveloperDeviceProps) {
             roughness={0.1}
           />
         </mesh>
-      </group>
-    </Float>
+    </group>
   );
 }
