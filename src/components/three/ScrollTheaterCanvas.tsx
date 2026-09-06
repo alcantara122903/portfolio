@@ -7,8 +7,10 @@ import * as THREE from "three";
 
 function TheaterScene({
   progressRef,
+  compact = false,
 }: {
   progressRef: React.MutableRefObject<number>;
+  compact?: boolean;
 }) {
   const core = useRef<THREE.Group>(null);
   const nodes = useRef<THREE.Group>(null);
@@ -48,10 +50,16 @@ function TheaterScene({
     if (core.current) {
       core.current.rotation.y = t * 0.4 + p * Math.PI;
       core.current.rotation.x = Math.sin(t * 0.5) * 0.2;
-      const scale = 0.7 + Math.min(1, stage) * 0.45 + Math.sin(t * 2) * 0.02;
+      const scale =
+        (compact ? 0.55 : 0.7) +
+        Math.min(1, stage) * (compact ? 0.35 : 0.45) +
+        Math.sin(t * 2) * 0.02;
       core.current.scale.setScalar(scale);
-      core.current.position.x = THREE.MathUtils.lerp(-1.4, 1.4, p);
-      core.current.position.y = Math.sin(p * Math.PI) * 0.25;
+      const xFrom = compact ? -0.4 : -1.4;
+      const xTo = compact ? 0.9 : 1.4;
+      core.current.position.x = THREE.MathUtils.lerp(xFrom, xTo, p);
+      core.current.position.y =
+        (compact ? 0.55 : 0) + Math.sin(p * Math.PI) * 0.25;
     }
 
     if (nodes.current) {
@@ -79,27 +87,41 @@ function TheaterScene({
     }
 
     const cam = state.camera;
-    cam.position.x += (p * 0.6 - cam.position.x) * 0.06;
-    cam.position.z += (5.2 - p * 0.8 - cam.position.z) * 0.06;
-    cam.lookAt(0, 0, 0);
+    const camX = compact ? p * 0.25 : p * 0.6;
+    const camZ = compact ? 6.2 - p * 0.5 : 5.2 - p * 0.8;
+    cam.position.x += (camX - cam.position.x) * 0.06;
+    cam.position.z += (camZ - cam.position.z) * 0.06;
+    cam.lookAt(0, compact ? 0.35 : 0, 0);
   });
 
   return (
     <>
-      <PerspectiveCamera makeDefault position={[0, 0.2, 5.2]} fov={42} />
+      <PerspectiveCamera
+        makeDefault
+        position={[0, compact ? 0.4 : 0.2, compact ? 6.2 : 5.2]}
+        fov={compact ? 48 : 42}
+      />
       <color attach="background" args={["#07090d"]} />
       <fog attach="fog" args={["#07090d", 4, 11]} />
       <ambientLight intensity={0.3} />
       <pointLight position={[2, 2, 3]} intensity={1.2} color="#38bdf8" />
       <pointLight position={[-3, -1, 2]} intensity={0.5} color="#67e8f9" />
 
-      <group ref={links}>
+      <group
+        ref={links}
+        position={compact ? [0.35, 0.7, 0] : [0, 0, 0]}
+        scale={compact ? 0.72 : 1}
+      >
         {linkMeshes.map((line, i) => (
           <primitive key={i} object={line} />
         ))}
       </group>
 
-      <group ref={nodes}>
+      <group
+        ref={nodes}
+        position={compact ? [0.35, 0.7, 0] : [0, 0, 0]}
+        scale={compact ? 0.72 : 1}
+      >
         <mesh position={[-1.6, 0.2, 0]}>
           <octahedronGeometry args={[0.22, 0]} />
           <meshStandardMaterial
@@ -133,7 +155,10 @@ function TheaterScene({
         </mesh>
       </group>
 
-      <group ref={core} position={[-1.4, 0, 0.4]}>
+      <group
+        ref={core}
+        position={compact ? [-0.4, 0.55, 0.4] : [-1.4, 0, 0.4]}
+      >
         <mesh>
           <icosahedronGeometry args={[0.35, 1]} />
           <meshStandardMaterial
@@ -155,16 +180,22 @@ function TheaterScene({
 
 export function ScrollTheaterCanvas({
   progressRef,
+  compact = false,
 }: {
   progressRef: React.MutableRefObject<number>;
+  compact?: boolean;
 }) {
   return (
     <Canvas
-      dpr={[1, 1.5]}
-      gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
+      dpr={compact ? [1, 1.25] : [1, 1.5]}
+      gl={{
+        antialias: !compact,
+        alpha: false,
+        powerPreference: compact ? "low-power" : "high-performance",
+      }}
       className="h-full w-full"
     >
-      <TheaterScene progressRef={progressRef} />
+      <TheaterScene progressRef={progressRef} compact={compact} />
     </Canvas>
   );
 }
