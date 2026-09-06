@@ -38,11 +38,14 @@ export function ScrollSignalTheater() {
   const isNarrow = useMediaQuery("(max-width: 768px)");
   const panelRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
+  const compactRef = useRef(false);
   const fillRef = useRef<HTMLDivElement>(null);
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
   const dashRefs = useRef<(HTMLDivElement | null)[]>([]);
   const countRef = useRef<HTMLSpanElement>(null);
   const activeIndex = useRef(0);
+
+  compactRef.current = isNarrow;
 
   useEffect(() => {
     if (reducedMotion || !panelRef.current) return;
@@ -89,17 +92,15 @@ export function ScrollSignalTheater() {
       }
     };
 
-    const endDistance = isNarrow ? "+=200%" : "+=280%";
-
     const tween = gsap.to(fillRef.current, {
       scaleX: 1,
       ease: "none",
       scrollTrigger: {
         trigger: panelRef.current,
         start: "top top",
-        end: endDistance,
+        end: "+=240%",
         pin: true,
-        scrub: isNarrow ? 0.65 : 0.9,
+        scrub: 0.8,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
@@ -114,10 +115,10 @@ export function ScrollSignalTheater() {
     });
 
     return () => {
-      tween.scrollTrigger?.kill();
+      tween.scrollTrigger?.kill(true);
       tween.kill();
     };
-  }, [reducedMotion, isNarrow]);
+  }, [reducedMotion]);
 
   if (reducedMotion) {
     return (
@@ -158,7 +159,7 @@ export function ScrollSignalTheater() {
             isNarrow ? "opacity-40" : "opacity-55",
           )}
         >
-          <TheaterCanvas progressRef={progressRef} compact={isNarrow} />
+          <TheaterCanvas progressRef={progressRef} compactRef={compactRef} />
         </div>
 
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_70%_40%,rgba(56,189,248,0.08),transparent_50%)] max-md:bg-[radial-gradient(ellipse_at_80%_20%,rgba(56,189,248,0.1),transparent_55%)]" />

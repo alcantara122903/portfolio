@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useScrollProgressRef } from "@/hooks/useScrollProgressRef";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useStableMediaQuery } from "@/hooks/useMediaQuery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const AmbientCanvas = dynamic(
@@ -15,7 +15,7 @@ const AmbientCanvas = dynamic(
 
 export function ScrollAmbientScene() {
   const reducedMotion = useReducedMotion();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useStableMediaQuery("(max-width: 768px)");
   const { progressRef } = useScrollProgressRef();
 
   if (reducedMotion || isMobile) return null;

@@ -2,12 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import { gsap, registerGsap, ScrollTrigger } from "@/lib/gsap";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useStableMediaQuery } from "@/hooks/useMediaQuery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export function GsapPageEffects() {
   const reducedMotion = useReducedMotion();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useStableMediaQuery("(max-width: 768px)");
   const progressBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

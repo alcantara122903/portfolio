@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useStableMediaQuery } from "@/hooks/useMediaQuery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const ProcessCanvas = dynamic(
@@ -18,7 +18,7 @@ interface ProcessScrollSceneProps {
 
 export function ProcessScrollScene({ progressRef }: ProcessScrollSceneProps) {
   const reducedMotion = useReducedMotion();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useStableMediaQuery("(max-width: 768px)");
 
   if (reducedMotion || isMobile) return null;
 

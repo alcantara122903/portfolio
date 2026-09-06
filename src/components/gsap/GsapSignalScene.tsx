@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { gsap, registerGsap, ScrollTrigger } from "@/lib/gsap";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useStableMediaQuery } from "@/hooks/useMediaQuery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const SignalCanvas = dynamic(
@@ -26,7 +26,7 @@ const SECTION_PHASE: Record<string, number> = {
 
 export function GsapSignalScene() {
   const reducedMotion = useReducedMotion();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useStableMediaQuery("(max-width: 768px)");
   const progressRef = useRef(0);
   const phaseRef = useRef(0);
   const mouseRef = useRef({ x: 0, y: 0 });

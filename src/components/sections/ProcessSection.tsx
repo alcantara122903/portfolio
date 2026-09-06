@@ -5,13 +5,13 @@ import { portfolio } from "@/data/portfolio";
 import { Container } from "@/components/layout/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { gsap, registerGsap } from "@/lib/gsap";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useStableMediaQuery } from "@/hooks/useMediaQuery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
 
 export function ProcessSection() {
   const reducedMotion = useReducedMotion();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useStableMediaQuery("(max-width: 768px)");
   const pinRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -75,7 +75,7 @@ export function ProcessSection() {
     });
 
     return () => {
-      trigger.scrollTrigger?.kill();
+      trigger.scrollTrigger?.kill(true);
       trigger.kill();
     };
   }, [reducedMotion, isMobile]);

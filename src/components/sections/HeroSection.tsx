@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { Suspense, useRef } from "react";
 import { ArrowDown } from "lucide-react";
 import { portfolio } from "@/data/portfolio";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useStableMediaQuery } from "@/hooks/useMediaQuery";
 import { useScrollProgressRef } from "@/hooks/useScrollProgressRef";
 import { GsapHeroIntro } from "@/components/gsap/GsapHeroIntro";
 import { MagneticButton } from "@/components/animations/MagneticButton";
@@ -24,7 +24,7 @@ const HeroScene = dynamic(
 
 export function HeroSection() {
   const { personal } = portfolio;
-  const isMobile = useMediaQuery("(max-width: 640px)");
+  const isMobile = useStableMediaQuery("(max-width: 640px)");
   const showScene = !isMobile;
   const sectionRef = useRef<HTMLElement>(null);
   const { progressRef } = useScrollProgressRef(sectionRef, [
