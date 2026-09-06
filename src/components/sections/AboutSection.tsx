@@ -1,8 +1,6 @@
 import { portfolio } from "@/data/portfolio";
 import { Reveal } from "@/components/animations/Reveal";
-import { ScrollReveal3D } from "@/components/animations/ScrollReveal3D";
 import { Container } from "@/components/layout/Container";
-import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 
@@ -20,42 +18,37 @@ const profileFields = [
 
 export function AboutSection() {
   return (
-    <section id="about" className="py-24 sm:py-32">
+    <section id="about" className="relative" data-gsap="reveal">
       <Container>
         <SectionHeading
           eyebrow="About"
-          title="I BUILD MORE THAN INTERFACES. I BUILD THE SYSTEM BEHIND THEM."
+          title="I build more than interfaces — I build the system behind them."
         />
 
-        <div className="mt-12 grid gap-10 lg:grid-cols-5 lg:gap-16">
-          <div className="space-y-5 lg:col-span-3">
+        <div className="mt-14 grid gap-14 lg:grid-cols-12 lg:gap-20">
+          <div className="space-y-6 lg:col-span-7">
             <Reveal delay={0.1}>
-              <p className="text-base leading-relaxed text-zinc-400">
-                I&apos;m a fourth-year Bachelor of Science in Information
-                Technology student at National University – Lipa, specializing
-                in Mobile and Web Applications.
+              <p className="text-base leading-[1.75] text-zinc-400 sm:text-lg">
+                I&apos;m a fourth-year BS Information Technology student at
+                National University – Lipa, specializing in Mobile and Web
+                Applications.
               </p>
             </Reveal>
             <Reveal delay={0.15}>
-              <p className="text-base leading-relaxed text-zinc-400">
+              <p className="text-base leading-[1.75] text-zinc-400 sm:text-lg">
                 Through academic projects — especially NU-SECURE — I&apos;ve
                 worked across mobile interfaces, Laravel APIs, databases,
                 authentication, QR workflows, OCR, and responsive web apps.
               </p>
             </Reveal>
             <Reveal delay={0.2}>
-              <p className="text-base leading-relaxed text-zinc-400">
+              <p className="text-base leading-[1.75] text-zinc-400 sm:text-lg">
                 I care about how the full system fits together: what users see,
-                the APIs behind it, and the data that keeps everything consistent.
+                the APIs behind it, and the data that keeps everything
+                consistent.
               </p>
             </Reveal>
             <Reveal delay={0.25}>
-              <p className="text-base leading-relaxed text-zinc-400">
-                {portfolio.personal.availability}. Ideal roles:{" "}
-                {portfolio.personal.focusAreas.join(", ").toLowerCase()}.
-              </p>
-            </Reveal>
-            <Reveal delay={0.3}>
               <div className="flex flex-wrap gap-3 pt-2">
                 <Button href="#projects">See Projects</Button>
                 <Button href="#contact" variant="outline">
@@ -65,22 +58,23 @@ export function AboutSection() {
             </Reveal>
           </div>
 
-          <ScrollReveal3D className="lg:col-span-2" depth="subtle">
-            <Reveal delay={0.3}>
-              <GlassCard className="space-y-5">
-                {profileFields.map((field) => (
-                  <div key={field.label}>
-                    <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
-                      {field.label}
-                    </p>
-                    <p className="mt-1 text-sm font-medium text-zinc-200">
-                      {field.value}
-                    </p>
-                  </div>
-                ))}
-              </GlassCard>
-            </Reveal>
-          </ScrollReveal3D>
+          <Reveal delay={0.2} className="lg:col-span-5">
+            <dl className="divide-y divide-white/8 border-y border-white/8">
+              {profileFields.map((field) => (
+                <div
+                  key={field.label}
+                  className="grid grid-cols-[7.5rem_1fr] gap-4 py-4 sm:grid-cols-[8.5rem_1fr]"
+                >
+                  <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+                    {field.label}
+                  </dt>
+                  <dd className="text-sm font-medium leading-snug text-zinc-200">
+                    {field.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </Reveal>
         </div>
       </Container>
     </section>

@@ -9,20 +9,15 @@ export function ProjectsSection() {
   const projects = portfolio.projects;
 
   return (
-    <section id="projects" className="relative py-24 sm:py-32">
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_0%_0%,rgba(56,189,248,0.04),transparent_40%)]"
-        aria-hidden="true"
-      />
-
+    <section id="projects" className="relative">
       <Container className="relative">
         <SectionHeading
           eyebrow="Projects"
-          title="Systems I've Built"
-          subtitle="Start with NU-SECURE — then supporting projects that built the fundamentals behind it."
+          title="Systems I've built."
+          subtitle="Start with NU-SECURE — then supporting work that built the fundamentals behind it."
         />
 
-        <div className="mt-6 space-y-4 sm:mt-8">
+        <div className="mt-10 space-y-2 sm:mt-12">
           {projects.map((project, index) => (
             <ProjectShowcase
               key={project.id}

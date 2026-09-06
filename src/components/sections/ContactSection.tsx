@@ -13,54 +13,62 @@ export function ContactSection() {
   const { contact, personal } = portfolio;
 
   return (
-    <section id="contact" className="py-24 sm:py-32">
+    <section id="contact">
       <Container>
         <SectionHeading
-            eyebrow="Contact"
-            title="LET'S BUILD SOMETHING THAT WORKS."
-            subtitle={`${personal.availability}. Prefer ${personal.focusAreas.join(", ").toLowerCase()}. If you're hiring interns or building something interesting, I'd love to hear from you.`}
-          />
+          eyebrow="Contact"
+          title="Let's build something that works."
+          subtitle={`${personal.availability}. Prefer ${personal.focusAreas.join(", ").toLowerCase()}.`}
+        />
 
-        <Reveal delay={0.1} className="mt-10 max-w-xl space-y-4">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-zinc-500">
-              Email
-            </p>
-            <a
-              href={GMAIL_COMPOSE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1 inline-block break-all text-sm text-zinc-200 transition-colors hover:text-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 sm:break-normal sm:text-base"
-            >
-              {contact.email}
-            </a>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-widest text-zinc-500">
-              LinkedIn
-            </p>
-            <a
-              href={LINKEDIN_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1 inline-block break-all text-sm text-zinc-200 transition-colors hover:text-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 sm:break-normal sm:text-base"
-            >
-              linkedin.com/in/ivan-alcantara-9265903b5
-            </a>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-widest text-zinc-500">
-              GitHub
-            </p>
-            <a
-              href={contact.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1 inline-block break-all text-sm text-zinc-200 transition-colors hover:text-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 sm:break-normal sm:text-base"
-            >
-              github.com/alcantara122903
-            </a>
-          </div>
+        <Reveal delay={0.1} className="mt-12 max-w-xl">
+          <dl className="divide-y divide-white/8 border-y border-white/8">
+            <div className="grid gap-1 py-5 sm:grid-cols-[7rem_1fr] sm:items-center sm:gap-6">
+              <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">
+                Email
+              </dt>
+              <dd>
+                <a
+                  href={GMAIL_COMPOSE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="break-all text-sm text-zinc-200 transition-colors hover:text-sky-400 sm:break-normal sm:text-base"
+                >
+                  {contact.email}
+                </a>
+              </dd>
+            </div>
+            <div className="grid gap-1 py-5 sm:grid-cols-[7rem_1fr] sm:items-center sm:gap-6">
+              <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">
+                LinkedIn
+              </dt>
+              <dd>
+                <a
+                  href={LINKEDIN_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-zinc-200 transition-colors hover:text-sky-400 sm:text-base"
+                >
+                  /in/ivan-alcantara
+                </a>
+              </dd>
+            </div>
+            <div className="grid gap-1 py-5 sm:grid-cols-[7rem_1fr] sm:items-center sm:gap-6">
+              <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-600">
+                GitHub
+              </dt>
+              <dd>
+                <a
+                  href={contact.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-zinc-200 transition-colors hover:text-sky-400 sm:text-base"
+                >
+                  @alcantara122903
+                </a>
+              </dd>
+            </div>
+          </dl>
         </Reveal>
 
         <Reveal delay={0.2}>
@@ -98,7 +106,7 @@ export function ContactSection() {
               </Button>
             </MagneticButton>
             <MagneticButton>
-              <DownloadResumeButton />
+              <DownloadResumeButton variant="ghost" />
             </MagneticButton>
           </div>
         </Reveal>

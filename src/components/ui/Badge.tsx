@@ -7,9 +7,9 @@ interface BadgeProps {
 }
 
 const variants = {
-  default: "bg-zinc-800/80 text-zinc-200 border-zinc-700/60",
-  accent: "bg-sky-500/10 text-sky-300 border-sky-500/30",
-  muted: "bg-zinc-900/60 text-zinc-400 border-zinc-800",
+  default: "bg-white/4 text-zinc-300 border-white/10",
+  accent: "bg-sky-400/8 text-sky-300 border-sky-400/20",
+  muted: "bg-transparent text-zinc-500 border-white/8",
 };
 
 export function Badge({
@@ -20,7 +20,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-medium tracking-wide",
+        "inline-flex items-center rounded-full border px-3 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.14em]",
         variants[variant],
         className,
       )}

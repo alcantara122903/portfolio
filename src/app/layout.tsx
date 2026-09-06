@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Syne } from "next/font/google";
 import { SITE_URL } from "@/lib/constants";
 import { portfolio } from "@/data/portfolio";
 import { LoadingScreen } from "@/components/loading/LoadingScreen";
@@ -17,6 +17,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const syne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+});
+
 const title = "Ivan Alcantara | Mobile & Web Developer";
 const description =
   "Ivan Alcantara — Mobile & Web Developer. Open to internship opportunities in 2026. React Native, Laravel, Next.js, Supabase.";
@@ -25,7 +31,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#09090b",
+  themeColor: "#07090d",
 };
 
 export const metadata: Metadata = {
@@ -65,9 +71,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${syne.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="flex min-h-dvh flex-col bg-zinc-950 text-zinc-100 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+      <body className="flex min-h-dvh flex-col bg-[#07090d] text-zinc-100 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
         <CustomCursor />
         <LoadingScreen />
         {children}

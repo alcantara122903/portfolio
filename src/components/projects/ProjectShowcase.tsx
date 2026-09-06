@@ -49,8 +49,8 @@ export function ProjectShowcase({ project, index = 0 }: ProjectShowcaseProps) {
       ref={rootRef}
       id={project.id}
       className={cn(
-        "relative border-t border-zinc-800/70 pt-12 sm:pt-16",
-        isFeatured && "border-sky-500/20",
+        "relative border-t border-white/8 pt-12 sm:pt-16",
+        isFeatured && "border-sky-400/20",
         isCompact && "pt-10 sm:pt-12",
       )}
     >
@@ -82,7 +82,7 @@ export function ProjectShowcase({ project, index = 0 }: ProjectShowcaseProps) {
 
           <h3
             className={cn(
-              "text-balance font-semibold tracking-tight text-zinc-50",
+              "font-display text-balance font-semibold tracking-tight text-zinc-50",
               isCompact
                 ? "text-2xl sm:text-3xl"
                 : "text-3xl sm:text-4xl lg:text-[2.75rem]",

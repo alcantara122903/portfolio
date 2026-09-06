@@ -18,6 +18,7 @@ export function SectionHeading({
   return (
     <div
       data-anime="section-heading"
+      data-gsap="heading"
       className={cn(
         "max-w-3xl",
         align === "center" && "mx-auto text-center",
@@ -27,21 +28,24 @@ export function SectionHeading({
       {eyebrow && (
         <p
           data-anime="eyebrow"
-          className="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-sky-400/90"
+          data-gsap="eyebrow"
+          className="mb-4 font-mono text-[11px] font-medium uppercase tracking-[0.28em] text-sky-400/80"
         >
           {eyebrow}
         </p>
       )}
       <h2
         data-anime="title"
-        className="text-balance text-2xl font-semibold tracking-tight text-zinc-50 min-[380px]:text-3xl sm:text-4xl lg:text-5xl"
+        data-gsap="title"
+        className="font-display text-balance text-3xl font-semibold tracking-tight text-zinc-50 min-[380px]:text-4xl sm:text-[2.75rem] lg:text-5xl"
       >
         {title}
       </h2>
       {subtitle && (
         <p
           data-anime="subtitle"
-          className="mt-4 text-base leading-relaxed text-zinc-400 sm:text-lg"
+          data-gsap="subtitle"
+          className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg"
         >
           {subtitle}
         </p>
