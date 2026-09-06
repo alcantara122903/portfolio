@@ -13,7 +13,7 @@ export function ContactSection() {
   const { contact, personal } = portfolio;
 
   return (
-    <section id="contact">
+    <section id="contact" data-gsap="section">
       <Container>
         <SectionHeading
           eyebrow="Contact"

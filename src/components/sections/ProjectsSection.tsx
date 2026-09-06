@@ -10,7 +10,7 @@ export function ProjectsSection() {
   const supporting = portfolio.projects.filter((p) => !p.featured);
 
   return (
-    <section id="projects" className="relative">
+    <section id="projects" className="relative" data-gsap="section">
       <Container className="relative">
         <SectionHeading
           eyebrow="Projects"

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image from "next/image";
 import { FileText, Globe, ArrowUpRight } from "lucide-react";
 import { animate, createScope, onScroll } from "animejs";
 import type { Project } from "@/types/portfolio";
@@ -22,24 +21,6 @@ export function ProjectShowcase({ project, index = 0 }: ProjectShowcaseProps) {
   const reducedMotion = useReducedMotion();
   const isFeatured = Boolean(project.featured);
   const isCompact = Boolean(project.compact);
-
-  const heroImage =
-    project.webScreenshot?.src ??
-    project.screenshotSrc ??
-    project.additionalScreenshots?.[0]?.src;
-
-  const secondaryImages = [
-    ...(project.screenshotSrc && project.webScreenshot
-      ? [
-          {
-            src: project.screenshotSrc,
-            alt: `${project.title} mobile`,
-            label: "Mobile",
-          },
-        ]
-      : []),
-    ...(project.additionalWebScreenshots ?? []).slice(0, 1),
-  ].filter(Boolean) as { src: string; alt: string; label?: string }[];
 
   useEffect(() => {
     if (reducedMotion || !rootRef.current) return;
@@ -64,6 +45,7 @@ export function ProjectShowcase({ project, index = 0 }: ProjectShowcaseProps) {
     <article
       ref={rootRef}
       id={project.id}
+      data-gsap="project"
       className={cn(
         "relative border-t border-white/8",
         isFeatured ? "pt-14 sm:pt-20" : "pt-12 sm:pt-14",
@@ -226,52 +208,6 @@ export function ProjectShowcase({ project, index = 0 }: ProjectShowcaseProps) {
           )}
         </div>
       </div>
-
-      {/* Imagery — open, quiet */}
-      {heroImage && (
-        <div
-          data-project="block"
-          className={cn("mt-12 sm:mt-14", !reducedMotion && "opacity-0")}
-        >
-          <div
-            className={cn(
-              "relative overflow-hidden rounded-lg border border-white/8 bg-[#0c1018]",
-              isFeatured ? "aspect-[16/9] sm:aspect-[2/1]" : "aspect-[16/10] max-w-3xl",
-            )}
-          >
-            <Image
-              src={heroImage}
-              alt={`${project.title} preview`}
-              fill
-              className="object-cover object-top"
-              sizes={
-                isFeatured
-                  ? "(max-width: 768px) 100vw, 1100px"
-                  : "(max-width: 768px) 100vw, 720px"
-              }
-            />
-          </div>
-
-          {isFeatured && secondaryImages.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 gap-4 sm:max-w-xl">
-              {secondaryImages.map((shot) => (
-                <div
-                  key={shot.src}
-                  className="relative aspect-[4/3] overflow-hidden rounded-md border border-white/8 bg-[#0c1018]"
-                >
-                  <Image
-                    src={shot.src}
-                    alt={shot.alt}
-                    fill
-                    className="object-cover object-top"
-                    sizes="280px"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Tech */}
       <div

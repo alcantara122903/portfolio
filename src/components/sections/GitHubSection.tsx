@@ -7,7 +7,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function GitHubSection() {
   return (
-    <section>
+    <section data-gsap="section">
       <Container>
         <SectionHeading
           eyebrow="Developer"

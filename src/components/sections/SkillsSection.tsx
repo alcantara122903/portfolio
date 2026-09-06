@@ -75,7 +75,7 @@ export function SkillsSection() {
   }, [activeFlow, reducedMotion]);
 
   return (
-    <section id="skills" ref={rootRef} className="relative overflow-hidden">
+    <section id="skills" ref={rootRef} className="relative overflow-hidden" data-gsap="section">
       <Container className="relative">
         <SectionHeading
           eyebrow="Skills"

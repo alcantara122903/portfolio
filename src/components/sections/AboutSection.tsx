@@ -18,7 +18,7 @@ const profileFields = [
 
 export function AboutSection() {
   return (
-    <section id="about" className="relative" data-gsap="reveal">
+    <section id="about" className="relative" data-gsap="section">
       <Container>
         <SectionHeading
           eyebrow="About"

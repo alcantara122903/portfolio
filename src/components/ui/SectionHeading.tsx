@@ -41,6 +41,11 @@ export function SectionHeading({
       >
         {title}
       </h2>
+      <div
+        data-gsap="rule"
+        className="mt-5 h-px w-16 origin-left bg-linear-to-r from-sky-400/70 to-transparent"
+        aria-hidden="true"
+      />
       {subtitle && (
         <p
           data-anime="subtitle"

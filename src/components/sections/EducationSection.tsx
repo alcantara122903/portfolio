@@ -5,7 +5,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function EducationSection() {
   return (
-    <section id="education">
+    <section id="education" data-gsap="section">
       <Container>
         <SectionHeading eyebrow="Education" title="Academic path." />
 

@@ -7,7 +7,7 @@ export function CertificationSection() {
   const cert = portfolio.certification;
 
   return (
-    <section>
+    <section data-gsap="section">
       <Container>
         <SectionHeading eyebrow="Credentials" title="Certification." />
 
