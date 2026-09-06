@@ -30,24 +30,28 @@ export function GsapPageEffects() {
         });
       }
 
-      // Section chapters — soft rise + clip
-      gsap.utils.toArray<HTMLElement>("[data-gsap='section']").forEach((section) => {
-        gsap.fromTo(
-          section,
-          { autoAlpha: 0.35, y: 36 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            ease: "none",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 92%",
-              end: "top 45%",
-              scrub: 0.8,
+      // Section chapters — soft rise (skip pinned theaters)
+      gsap.utils
+        .toArray<HTMLElement>("[data-gsap='section']")
+        .forEach((section) => {
+          if (section.id === "process" || section.id === "home") return;
+
+          gsap.fromTo(
+            section,
+            { autoAlpha: 0.55, y: 28 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              ease: "none",
+              scrollTrigger: {
+                trigger: section,
+                start: "top 92%",
+                end: "top 48%",
+                scrub: 0.8,
+              },
             },
-          },
-        );
-      });
+          );
+        });
 
       // Headings
       gsap.utils.toArray<HTMLElement>("[data-gsap='heading']").forEach((el) => {

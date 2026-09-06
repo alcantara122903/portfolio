@@ -12,80 +12,99 @@ import { cn } from "@/lib/utils";
 export function ProcessSection() {
   const reducedMotion = useReducedMotion();
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const activeIndex = useRef(0);
 
   useEffect(() => {
     if (reducedMotion || isMobile || !pinRef.current) return;
     registerGsap();
 
     const steps = stepRefs.current.filter(Boolean) as HTMLDivElement[];
-    gsap.set(steps, { autoAlpha: 0.25, y: 20 });
-    gsap.set(steps[0], { autoAlpha: 1, y: 0 });
+    const labels = labelRefs.current.filter(Boolean) as HTMLSpanElement[];
 
-    const tl = gsap.timeline({
+    // Only one step visible at a time — never ghost-stack
+    gsap.set(steps, { autoAlpha: 0, y: 24 });
+    gsap.set(steps[0], { autoAlpha: 1, y: 0 });
+    labels.forEach((label, i) => {
+      gsap.set(label, { color: i === 0 ? "#7dd3fc" : "#52525b" });
+    });
+
+    const showStep = (index: number) => {
+      if (index === activeIndex.current) return;
+      activeIndex.current = index;
+      steps.forEach((step, i) => {
+        gsap.to(step, {
+          autoAlpha: i === index ? 1 : 0,
+          y: i === index ? 0 : i < index ? -18 : 18,
+          duration: 0.35,
+          ease: "power2.out",
+          overwrite: true,
+        });
+      });
+      labels.forEach((label, i) => {
+        gsap.to(label, {
+          color: i === index ? "#7dd3fc" : "#52525b",
+          duration: 0.25,
+          overwrite: true,
+        });
+      });
+    };
+
+    const trigger = gsap.to(fillRef.current, {
+      scaleX: 1,
+      ease: "none",
       scrollTrigger: {
         trigger: pinRef.current,
         start: "top top",
-        end: "+=260%",
+        end: "+=240%",
         pin: true,
-        scrub: 1,
+        scrub: 0.85,
         anticipatePin: 1,
+        invalidateOnRefresh: true,
         onUpdate: (self) => {
-          if (fillRef.current) {
-            fillRef.current.style.transform = `scaleX(${self.progress})`;
-          }
+          const idx = Math.min(
+            steps.length - 1,
+            Math.floor(self.progress * steps.length),
+          );
+          showStep(idx);
         },
       },
     });
 
-    steps.forEach((step, i) => {
-      if (i === 0) return;
-      const start = i / steps.length;
-      tl.to(
-        steps[i - 1],
-        { autoAlpha: 0.25, y: -16, duration: 0.15 },
-        start - 0.02,
-      );
-      tl.fromTo(
-        step,
-        { autoAlpha: 0.25, y: 24 },
-        { autoAlpha: 1, y: 0, duration: 0.18 },
-        start,
-      );
-    });
-
     return () => {
-      tl.scrollTrigger?.kill();
-      tl.kill();
+      trigger.scrollTrigger?.kill();
+      trigger.kill();
     };
   }, [reducedMotion, isMobile]);
 
+  const list = (
+    <div className="mt-14 divide-y divide-white/8 border-y border-white/8">
+      {portfolio.process.map((step) => (
+        <div key={step.number} className="py-8">
+          <span className="font-mono text-xs text-sky-400/70">{step.number}</span>
+          <h3 className="font-display mt-3 text-xl font-semibold text-zinc-100">
+            {step.title}
+          </h3>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500">
+            {step.description}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
-    <section id="process" ref={sectionRef} className="relative" data-gsap="section">
+    <section id="process" className="relative" data-gsap="section">
       {reducedMotion || isMobile ? (
         <Container>
           <SectionHeading
             eyebrow="Process"
             title="From problem to working system."
           />
-          <div className="mt-14 divide-y divide-white/8 border-y border-white/8">
-            {portfolio.process.map((step) => (
-              <div key={step.number} className="py-8">
-                <span className="font-mono text-xs text-sky-400/70">
-                  {step.number}
-                </span>
-                <h3 className="font-display mt-3 text-xl font-semibold text-zinc-100">
-                  {step.title}
-                </h3>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500">
-                  {step.description}
-                </p>
-              </div>
-            ))}
-          </div>
+          {list}
         </Container>
       ) : (
         <div ref={pinRef} className="flex h-dvh flex-col justify-center">
@@ -93,20 +112,22 @@ export function ProcessSection() {
             <SectionHeading
               eyebrow="Process"
               title="From problem to working system."
-              subtitle="Scroll through each phase — the system comes together step by step."
+              subtitle="Scroll through each phase — one step at a time."
             />
 
-            <div className="relative mt-14 min-h-[220px]">
+            <div className="relative mt-14 min-h-[240px] overflow-hidden">
               {portfolio.process.map((step, index) => (
                 <div
                   key={step.number}
                   ref={(el) => {
                     stepRefs.current[index] = el;
                   }}
-                  className={cn(
-                    "absolute inset-x-0 top-0 max-w-2xl border-t border-white/8 pt-8",
-                    index === 0 ? "opacity-100" : "opacity-25",
-                  )}
+                  className="absolute inset-x-0 top-0 max-w-2xl border-t border-white/10 pt-8"
+                  style={{
+                    opacity: index === 0 ? 1 : 0,
+                    visibility: index === 0 ? "visible" : "hidden",
+                  }}
+                  aria-hidden={index !== 0}
                 >
                   <span className="font-mono text-sm text-sky-400/80">
                     {step.number}
@@ -119,7 +140,8 @@ export function ProcessSection() {
                   </p>
                 </div>
               ))}
-              <div className="invisible border-t border-transparent pt-8">
+              {/* Height reserve */}
+              <div className="invisible border-t pt-8" aria-hidden="true">
                 <span className="font-mono text-sm">00</span>
                 <h3 className="font-display mt-4 text-3xl sm:text-4xl">
                   Test & Improve
@@ -139,15 +161,20 @@ export function ProcessSection() {
               <div className="h-[2px] overflow-hidden rounded-full bg-white/8">
                 <div
                   ref={fillRef}
-                  className="h-full origin-left bg-linear-to-r from-sky-500 to-cyan-200"
-                  style={{ transform: "scaleX(0)" }}
+                  className="h-full origin-left scale-x-0 bg-linear-to-r from-sky-500 to-cyan-200"
                 />
               </div>
-              <div className="mt-4 flex gap-3">
-                {portfolio.process.map((step) => (
+              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+                {portfolio.process.map((step, index) => (
                   <span
                     key={step.number}
-                    className="font-mono text-[10px] text-zinc-600"
+                    ref={(el) => {
+                      labelRefs.current[index] = el;
+                    }}
+                    className={cn(
+                      "font-mono text-[10px] uppercase tracking-[0.14em]",
+                      index === 0 ? "text-sky-300" : "text-zinc-600",
+                    )}
                   >
                     {step.number} {step.title}
                   </span>

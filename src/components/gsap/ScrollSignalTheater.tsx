@@ -6,6 +6,7 @@ import { gsap, registerGsap } from "@/lib/gsap";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { DATA_FLOW_LABELS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 const TheaterCanvas = dynamic(
   () =>
@@ -36,85 +37,79 @@ const CHAPTERS = [
 export function ScrollSignalTheater() {
   const reducedMotion = useReducedMotion();
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const sectionRef = useRef<HTMLElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
   const fillRef = useRef<HTMLDivElement>(null);
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const dashRefs = useRef<(HTMLDivElement | null)[]>([]);
   const countRef = useRef<HTMLSpanElement>(null);
-  const beamRef = useRef<HTMLDivElement>(null);
+  const activeIndex = useRef(0);
 
   useEffect(() => {
-    if (reducedMotion || isMobile || !panelRef.current || !sectionRef.current) {
-      return;
-    }
-
+    if (reducedMotion || isMobile || !panelRef.current) return;
     registerGsap();
 
     const chapters = chapterRefs.current.filter(Boolean) as HTMLDivElement[];
-    gsap.set(chapters, { autoAlpha: 0, y: 28, filter: "blur(8px)" });
-    gsap.set(chapters[0], { autoAlpha: 1, y: 0, filter: "blur(0px)" });
+    const dashes = dashRefs.current.filter(Boolean) as HTMLDivElement[];
 
-    const tl = gsap.timeline({
+    gsap.set(chapters, { autoAlpha: 0, y: 28 });
+    gsap.set(chapters[0], { autoAlpha: 1, y: 0 });
+    gsap.set(dashes, { scaleX: 0, transformOrigin: "left center" });
+    gsap.set(dashes[0], { scaleX: 1 });
+
+    const showChapter = (index: number) => {
+      if (index === activeIndex.current) return;
+      activeIndex.current = index;
+
+      chapters.forEach((chapter, i) => {
+        gsap.to(chapter, {
+          autoAlpha: i === index ? 1 : 0,
+          y: i === index ? 0 : i < index ? -20 : 20,
+          duration: 0.4,
+          ease: "power2.out",
+          overwrite: true,
+        });
+      });
+
+      dashes.forEach((dash, i) => {
+        gsap.to(dash, {
+          scaleX: i <= index ? 1 : 0,
+          duration: 0.35,
+          ease: "power2.out",
+          overwrite: true,
+        });
+      });
+
+      if (countRef.current) {
+        countRef.current.textContent = String(index + 1).padStart(2, "0");
+      }
+    };
+
+    const tween = gsap.to(fillRef.current, {
+      scaleX: 1,
+      ease: "none",
       scrollTrigger: {
         trigger: panelRef.current,
         start: "top top",
-        end: "+=320%",
+        end: "+=280%",
         pin: true,
-        scrub: 1.05,
+        scrub: 0.9,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           progressRef.current = self.progress;
-          if (fillRef.current) {
-            fillRef.current.style.transform = `scaleX(${self.progress})`;
-          }
-          if (countRef.current) {
-            const step = Math.min(
-              3,
-              Math.max(1, Math.ceil(self.progress * 3)),
-            );
-            countRef.current.textContent = String(step).padStart(2, "0");
-          }
-          if (beamRef.current) {
-            beamRef.current.style.transform = `scaleX(${0.15 + self.progress * 0.85})`;
-          }
+          const idx = Math.min(
+            chapters.length - 1,
+            Math.floor(self.progress * chapters.length),
+          );
+          showChapter(idx);
         },
       },
     });
 
-    // Chapter 1 holds, then crossfade to 2, then 3
-    tl.to({}, { duration: 0.12 }, 0);
-
-    tl.to(
-      chapters[0],
-      { autoAlpha: 0, y: -24, filter: "blur(8px)", duration: 0.18 },
-      0.28,
-    );
-    tl.fromTo(
-      chapters[1],
-      { autoAlpha: 0, y: 28, filter: "blur(8px)" },
-      { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.2 },
-      0.3,
-    );
-
-    tl.to(
-      chapters[1],
-      { autoAlpha: 0, y: -24, filter: "blur(8px)", duration: 0.18 },
-      0.58,
-    );
-    tl.fromTo(
-      chapters[2],
-      { autoAlpha: 0, y: 28, filter: "blur(8px)" },
-      { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.2 },
-      0.6,
-    );
-
-    tl.to({}, { duration: 0.18 }, 0.85);
-
     return () => {
-      tl.scrollTrigger?.kill();
-      tl.kill();
+      tween.scrollTrigger?.kill();
+      tween.kill();
     };
   }, [reducedMotion, isMobile]);
 
@@ -146,23 +141,18 @@ export function ScrollSignalTheater() {
   }
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative z-10"
-      aria-label="Scroll-driven system flow"
-    >
+    <section className="relative z-10" aria-label="Scroll-driven system flow">
       <div
         ref={panelRef}
         className="relative flex h-dvh w-full items-center overflow-hidden bg-[#07090d]"
       >
-        {/* Three.js scrubbed scene */}
-        <div className="absolute inset-0 opacity-70">
+        <div className="absolute inset-0 opacity-55">
           <TheaterCanvas progressRef={progressRef} />
         </div>
 
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(56,189,248,0.1),transparent_50%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-[#07090d] via-[#07090d]/55 to-transparent" />
-        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-[#07090d] via-transparent to-[#07090d]/80" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_70%_45%,rgba(56,189,248,0.08),transparent_45%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-[#07090d] via-[#07090d]/75 to-[#07090d]/25" />
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-[#07090d] via-transparent to-[#07090d]/85" />
 
         <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col justify-between px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
           <div className="flex items-center justify-between gap-4">
@@ -175,14 +165,19 @@ export function ScrollSignalTheater() {
             </p>
           </div>
 
-          <div className="relative max-w-xl">
+          <div className="relative max-w-xl overflow-hidden">
             {CHAPTERS.map((chapter, index) => (
               <div
                 key={chapter.label}
                 ref={(el) => {
                   chapterRefs.current[index] = el;
                 }}
-                className="absolute inset-x-0 top-1/2 -translate-y-1/2"
+                className="absolute inset-x-0 top-0"
+                style={{
+                  opacity: index === 0 ? 1 : 0,
+                  visibility: index === 0 ? "visible" : "hidden",
+                }}
+                aria-hidden={index !== 0}
               >
                 <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
                   {chapter.kicker}
@@ -195,8 +190,7 @@ export function ScrollSignalTheater() {
                 </p>
               </div>
             ))}
-            {/* Spacer so absolute chapters have height */}
-            <div className="invisible">
+            <div className="invisible" aria-hidden="true">
               <p className="font-mono text-[11px]">00</p>
               <h2 className="font-display mt-4 text-5xl sm:text-6xl lg:text-7xl">
                 Database
@@ -216,8 +210,7 @@ export function ScrollSignalTheater() {
             <div className="h-[2px] overflow-hidden rounded-full bg-white/8">
               <div
                 ref={fillRef}
-                className="h-full origin-left rounded-full bg-linear-to-r from-sky-500 via-cyan-300 to-sky-200"
-                style={{ transform: "scaleX(0)" }}
+                className="h-full origin-left scale-x-0 rounded-full bg-linear-to-r from-sky-500 via-cyan-300 to-sky-200"
               />
             </div>
             <div className="mt-4 flex gap-2">
@@ -227,9 +220,13 @@ export function ScrollSignalTheater() {
                   className="h-1 flex-1 overflow-hidden rounded-full bg-white/8"
                 >
                   <div
-                    ref={i === 0 ? beamRef : undefined}
-                    className="h-full origin-left rounded-full bg-sky-400/70"
-                    style={{ transform: "scaleX(0.15)" }}
+                    ref={(el) => {
+                      dashRefs.current[i] = el;
+                    }}
+                    className={cn(
+                      "h-full origin-left rounded-full bg-sky-400/80",
+                      i === 0 ? "scale-x-100" : "scale-x-0",
+                    )}
                   />
                 </div>
               ))}
