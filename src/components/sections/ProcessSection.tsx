@@ -4,42 +4,47 @@ import { useEffect, useRef } from "react";
 import { portfolio } from "@/data/portfolio";
 import { Container } from "@/components/layout/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { gsap, registerGsap } from "@/lib/gsap";
+import { gsap, registerGsap, ScrollTrigger } from "@/lib/gsap";
 import { useStableMediaQuery } from "@/hooks/useMediaQuery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
 
+const HOLD_SECONDS = 2.4;
+
 export function ProcessSection() {
   const reducedMotion = useReducedMotion();
   const isMobile = useStableMediaQuery("(max-width: 768px)");
-  const pinRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const labelRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const activeIndex = useRef(0);
+  const goToRef = useRef<(index: number) => void>(() => {});
 
   useEffect(() => {
-    if (reducedMotion || isMobile || !pinRef.current) return;
+    if (reducedMotion || isMobile || !panelRef.current) return;
     registerGsap();
 
     const steps = stepRefs.current.filter(Boolean) as HTMLDivElement[];
-    const labels = labelRefs.current.filter(Boolean) as HTMLSpanElement[];
+    const labels = labelRefs.current.filter(Boolean) as HTMLButtonElement[];
+    const total = steps.length;
 
-    // Only one step visible at a time — never ghost-stack
     gsap.set(steps, { autoAlpha: 0, y: 24 });
     gsap.set(steps[0], { autoAlpha: 1, y: 0 });
+    gsap.set(fillRef.current, { scaleX: 0, transformOrigin: "left center" });
     labels.forEach((label, i) => {
       gsap.set(label, { color: i === 0 ? "#7dd3fc" : "#52525b" });
     });
+    activeIndex.current = 0;
 
-    const showStep = (index: number) => {
-      if (index === activeIndex.current) return;
+    const showStep = (index: number, force = false) => {
+      if (!force && index === activeIndex.current) return;
       activeIndex.current = index;
       steps.forEach((step, i) => {
         gsap.to(step, {
           autoAlpha: i === index ? 1 : 0,
           y: i === index ? 0 : i < index ? -18 : 18,
-          duration: 0.35,
+          duration: 0.4,
           ease: "power2.out",
           overwrite: true,
         });
@@ -53,32 +58,73 @@ export function ProcessSection() {
       });
     };
 
-    const trigger = gsap.to(fillRef.current, {
-      scaleX: 1,
-      ease: "none",
-      scrollTrigger: {
-        trigger: pinRef.current,
-        start: "top top",
-        end: "+=240%",
-        pin: true,
-        scrub: 0.85,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          const idx = Math.min(
-            steps.length - 1,
-            Math.floor(self.progress * steps.length),
-          );
-          showStep(idx);
+    const proxy = { p: 0 };
+    const tl = gsap.timeline({
+      paused: true,
+      repeat: -1,
+      onUpdate: () => {
+        if (fillRef.current) {
+          gsap.set(fillRef.current, { scaleX: proxy.p });
+        }
+      },
+    });
+
+    for (let i = 0; i < total; i++) {
+      tl.call(() => showStep(i));
+      tl.fromTo(
+        proxy,
+        { p: i / total },
+        {
+          p: (i + 1) / total,
+          duration: HOLD_SECONDS,
+          ease: "none",
         },
+      );
+    }
+
+    const goTo = (index: number) => {
+      const next = ((index % total) + total) % total;
+      showStep(next, true);
+      proxy.p = next / total;
+      gsap.set(fillRef.current, { scaleX: proxy.p });
+      tl.seek(next * HOLD_SECONDS);
+      tl.play();
+    };
+    goToRef.current = goTo;
+
+    const trigger = ScrollTrigger.create({
+      trigger: panelRef.current,
+      start: "top 75%",
+      end: "bottom 25%",
+      onEnter: () => {
+        tl.restart();
+      },
+      onEnterBack: () => {
+        tl.play();
+      },
+      onLeave: () => {
+        tl.pause();
+      },
+      onLeaveBack: () => {
+        tl.pause(0);
+        showStep(0, true);
+        proxy.p = 0;
+        gsap.set(fillRef.current, { scaleX: 0 });
+        labels.forEach((label, i) => {
+          gsap.set(label, { color: i === 0 ? "#7dd3fc" : "#52525b" });
+        });
       },
     });
 
     return () => {
-      trigger.scrollTrigger?.kill(true);
       trigger.kill();
+      tl.kill();
     };
   }, [reducedMotion, isMobile]);
+
+  const goNext = () => {
+    goToRef.current(activeIndex.current + 1);
+  };
 
   const list = (
     <div className="mt-14 divide-y divide-white/8 border-y border-white/8">
@@ -107,12 +153,25 @@ export function ProcessSection() {
           {list}
         </Container>
       ) : (
-        <div ref={pinRef} className="flex h-dvh flex-col justify-center">
+        <div
+          ref={panelRef}
+          role="button"
+          tabIndex={0}
+          aria-label="Build path — click for next step"
+          onClick={goNext}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              goNext();
+            }
+          }}
+          className="flex min-h-dvh cursor-pointer flex-col justify-center py-16"
+        >
           <Container>
             <SectionHeading
               eyebrow="Process"
               title="From problem to working system."
-              subtitle="Scroll through each phase — one step at a time."
+              subtitle="Auto-plays — click anywhere for the next step."
             />
 
             <div className="relative mt-14 min-h-[240px] overflow-hidden">
@@ -140,7 +199,6 @@ export function ProcessSection() {
                   </p>
                 </div>
               ))}
-              {/* Height reserve */}
               <div className="invisible border-t pt-8" aria-hidden="true">
                 <span className="font-mono text-sm">00</span>
                 <h3 className="font-display mt-4 text-3xl sm:text-4xl">
@@ -156,7 +214,7 @@ export function ProcessSection() {
             <div className="mt-16">
               <div className="mb-3 flex justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
                 <span>Build path</span>
-                <span>Scroll</span>
+                <span>Click or auto</span>
               </div>
               <div className="h-[2px] overflow-hidden rounded-full bg-white/8">
                 <div
@@ -166,18 +224,23 @@ export function ProcessSection() {
               </div>
               <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
                 {portfolio.process.map((step, index) => (
-                  <span
+                  <button
                     key={step.number}
+                    type="button"
                     ref={(el) => {
                       labelRefs.current[index] = el;
                     }}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      goToRef.current(index);
+                    }}
                     className={cn(
-                      "font-mono text-[10px] uppercase tracking-[0.14em]",
+                      "font-mono text-[10px] uppercase tracking-[0.14em] transition-colors hover:text-sky-200",
                       index === 0 ? "text-sky-300" : "text-zinc-600",
                     )}
                   >
                     {step.number} {step.title}
-                  </span>
+                  </button>
                 ))}
               </div>
             </div>

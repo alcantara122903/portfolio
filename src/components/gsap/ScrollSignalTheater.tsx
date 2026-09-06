@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
-import { gsap, registerGsap } from "@/lib/gsap";
+import { gsap, registerGsap, ScrollTrigger } from "@/lib/gsap";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/utils";
@@ -33,6 +33,8 @@ const CHAPTERS = [
   },
 ] as const;
 
+const HOLD_SECONDS = 2.4;
+
 export function ScrollSignalTheater() {
   const reducedMotion = useReducedMotion();
   const isNarrow = useMediaQuery("(max-width: 768px)");
@@ -44,6 +46,7 @@ export function ScrollSignalTheater() {
   const dashRefs = useRef<(HTMLDivElement | null)[]>([]);
   const countRef = useRef<HTMLSpanElement>(null);
   const activeIndex = useRef(0);
+  const goToRef = useRef<(index: number) => void>(() => {});
 
   compactRef.current = isNarrow;
 
@@ -53,26 +56,28 @@ export function ScrollSignalTheater() {
 
     const chapters = chapterRefs.current.filter(Boolean) as HTMLDivElement[];
     const dashes = dashRefs.current.filter(Boolean) as HTMLDivElement[];
+    const total = chapters.length;
 
     gsap.set(chapters, { autoAlpha: 0, y: 28 });
     gsap.set(chapters[0], { autoAlpha: 1, y: 0 });
     gsap.set(dashes, { scaleX: 0, transformOrigin: "left center" });
     gsap.set(dashes[0], { scaleX: 1 });
+    gsap.set(fillRef.current, { scaleX: 0, transformOrigin: "left center" });
     activeIndex.current = 0;
 
     if (countRef.current) {
       countRef.current.textContent = "01";
     }
 
-    const showChapter = (index: number) => {
-      if (index === activeIndex.current) return;
+    const showChapter = (index: number, force = false) => {
+      if (!force && index === activeIndex.current) return;
       activeIndex.current = index;
 
       chapters.forEach((chapter, i) => {
         gsap.to(chapter, {
           autoAlpha: i === index ? 1 : 0,
           y: i === index ? 0 : i < index ? -20 : 20,
-          duration: 0.4,
+          duration: 0.45,
           ease: "power2.out",
           overwrite: true,
         });
@@ -92,33 +97,75 @@ export function ScrollSignalTheater() {
       }
     };
 
-    const tween = gsap.to(fillRef.current, {
-      scaleX: 1,
-      ease: "none",
-      scrollTrigger: {
-        trigger: panelRef.current,
-        start: "top top",
-        end: "+=240%",
-        pin: true,
-        scrub: 0.8,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          progressRef.current = self.progress;
-          const idx = Math.min(
-            chapters.length - 1,
-            Math.floor(self.progress * chapters.length),
-          );
-          showChapter(idx);
+    const proxy = { p: 0 };
+    const tl = gsap.timeline({
+      paused: true,
+      repeat: -1,
+      onUpdate: () => {
+        progressRef.current = proxy.p;
+        if (fillRef.current) {
+          gsap.set(fillRef.current, { scaleX: proxy.p });
+        }
+      },
+    });
+
+    for (let i = 0; i < total; i++) {
+      tl.call(() => showChapter(i));
+      tl.fromTo(
+        proxy,
+        { p: i / total },
+        {
+          p: (i + 1) / total,
+          duration: HOLD_SECONDS,
+          ease: "none",
         },
+      );
+    }
+
+    const goTo = (index: number) => {
+      const next = ((index % total) + total) % total;
+      showChapter(next, true);
+      proxy.p = next / total;
+      progressRef.current = proxy.p;
+      gsap.set(fillRef.current, { scaleX: proxy.p });
+      tl.seek(next * HOLD_SECONDS);
+      tl.play();
+    };
+    goToRef.current = goTo;
+
+    const trigger = ScrollTrigger.create({
+      trigger: panelRef.current,
+      start: "top 75%",
+      end: "bottom 25%",
+      onEnter: () => {
+        tl.restart();
+      },
+      onEnterBack: () => {
+        tl.play();
+      },
+      onLeave: () => {
+        tl.pause();
+      },
+      onLeaveBack: () => {
+        tl.pause(0);
+        showChapter(0, true);
+        proxy.p = 0;
+        progressRef.current = 0;
+        gsap.set(fillRef.current, { scaleX: 0 });
+        gsap.set(dashes, { scaleX: 0 });
+        gsap.set(dashes[0], { scaleX: 1 });
       },
     });
 
     return () => {
-      tween.scrollTrigger?.kill(true);
-      tween.kill();
+      trigger.kill();
+      tl.kill();
     };
   }, [reducedMotion]);
+
+  const goNext = () => {
+    goToRef.current(activeIndex.current + 1);
+  };
 
   if (reducedMotion) {
     return (
@@ -129,7 +176,10 @@ export function ScrollSignalTheater() {
           </p>
           <div className="mt-8 grid gap-8 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-10">
             {CHAPTERS.map((chapter) => (
-              <div key={chapter.label} className="border-t border-white/8 pt-5 sm:pt-6">
+              <div
+                key={chapter.label}
+                className="border-t border-white/8 pt-5 sm:pt-6"
+              >
                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
                   {chapter.kicker}
                 </p>
@@ -151,7 +201,17 @@ export function ScrollSignalTheater() {
     <section className="relative z-10" aria-label="Who I am">
       <div
         ref={panelRef}
-        className="relative flex min-h-dvh w-full items-center overflow-hidden bg-[#07090d]"
+        role="button"
+        tabIndex={0}
+        aria-label="Who I am — click for next"
+        onClick={goNext}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            goNext();
+          }
+        }}
+        className="relative flex min-h-dvh w-full cursor-pointer items-center overflow-hidden bg-[#07090d]"
       >
         <div
           className={cn(
@@ -226,8 +286,7 @@ export function ScrollSignalTheater() {
           <div className="w-full">
             <div className="mb-2.5 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.18em] text-zinc-600 sm:mb-3 sm:text-[10px] sm:tracking-[0.2em]">
               <span>My path</span>
-              <span className="hidden sm:inline">Keep scrolling</span>
-              <span className="sm:hidden">Scroll</span>
+              <span>Click or auto</span>
             </div>
             <div className="h-[2px] overflow-hidden rounded-full bg-white/8">
               <div
@@ -237,20 +296,26 @@ export function ScrollSignalTheater() {
             </div>
             <div className="mt-3 flex gap-1.5 sm:mt-4 sm:gap-2">
               {CHAPTERS.map((chapter, i) => (
-                <div
+                <button
                   key={chapter.label}
-                  className="h-1 flex-1 overflow-hidden rounded-full bg-white/8"
+                  type="button"
+                  aria-label={`Go to ${chapter.kicker}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    goToRef.current(i);
+                  }}
+                  className="h-1 flex-1 overflow-hidden rounded-full bg-white/8 transition-opacity hover:opacity-80"
                 >
                   <div
                     ref={(el) => {
                       dashRefs.current[i] = el;
                     }}
                     className={cn(
-                      "h-full origin-left rounded-full bg-sky-400/80",
+                      "pointer-events-none h-full origin-left rounded-full bg-sky-400/80",
                       i === 0 ? "scale-x-100" : "scale-x-0",
                     )}
                   />
-                </div>
+                </button>
               ))}
             </div>
           </div>
