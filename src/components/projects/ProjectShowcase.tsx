@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Check, FileText, Globe } from "lucide-react";
-import { animate, createScope, onScroll, stagger } from "animejs";
+import Image from "next/image";
+import { FileText, Globe, ArrowUpRight } from "lucide-react";
+import { animate, createScope, onScroll } from "animejs";
 import type { Project } from "@/types/portfolio";
 import { ANIME_DURATION, ANIME_EASE } from "@/lib/anime";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { ArchitectureFlow } from "@/components/projects/ArchitectureFlow";
-import { ProjectScreenshots } from "@/components/projects/ProjectScreenshots";
 import { ProjectTech } from "@/components/projects/ProjectTech";
 import { Button } from "@/components/ui/Button";
 import { GitHubIcon } from "@/components/ui/icons";
@@ -21,8 +20,26 @@ interface ProjectShowcaseProps {
 export function ProjectShowcase({ project, index = 0 }: ProjectShowcaseProps) {
   const rootRef = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
-  const isFeatured = project.featured;
-  const isCompact = project.compact;
+  const isFeatured = Boolean(project.featured);
+  const isCompact = Boolean(project.compact);
+
+  const heroImage =
+    project.webScreenshot?.src ??
+    project.screenshotSrc ??
+    project.additionalScreenshots?.[0]?.src;
+
+  const secondaryImages = [
+    ...(project.screenshotSrc && project.webScreenshot
+      ? [
+          {
+            src: project.screenshotSrc,
+            alt: `${project.title} mobile`,
+            label: "Mobile",
+          },
+        ]
+      : []),
+    ...(project.additionalWebScreenshots ?? []).slice(0, 1),
+  ].filter(Boolean) as { src: string; alt: string; label?: string }[];
 
   useEffect(() => {
     if (reducedMotion || !rootRef.current) return;
@@ -30,13 +47,12 @@ export function ProjectShowcase({ project, index = 0 }: ProjectShowcaseProps) {
     const scope = createScope({ root: rootRef }).add(() => {
       animate('[data-project="block"]', {
         opacity: [0, 1],
-        y: [22, 0],
+        y: [18, 0],
         duration: ANIME_DURATION.medium,
         ease: ANIME_EASE.outSoft,
-        delay: stagger(90),
         autoplay: onScroll({
           target: rootRef.current!,
-          enter: "bottom top+=12%",
+          enter: "bottom top+=14%",
         }),
       });
     });
@@ -49,242 +65,218 @@ export function ProjectShowcase({ project, index = 0 }: ProjectShowcaseProps) {
       ref={rootRef}
       id={project.id}
       className={cn(
-        "relative border-t border-white/8 pt-12 sm:pt-16",
-        isFeatured && "border-sky-400/20",
-        isCompact && "pt-10 sm:pt-12",
+        "relative border-t border-white/8",
+        isFeatured ? "pt-14 sm:pt-20" : "pt-12 sm:pt-14",
       )}
     >
-      {isFeatured && (
-        <div
-          className="pointer-events-none absolute -left-4 top-12 h-40 w-px bg-linear-to-b from-sky-400/70 via-sky-400/20 to-transparent sm:-left-6"
-          aria-hidden="true"
-        />
-      )}
-
+      {/* Header */}
       <header
         data-project="block"
         className={cn(
-          "flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between",
+          "grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-12",
           !reducedMotion && "opacity-0",
         )}
       >
         <div className="min-w-0 max-w-2xl">
-          <div className="mb-3 flex flex-wrap items-center gap-3">
-            <span className="font-mono text-[11px] text-sky-400/80">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="font-mono text-[11px] tabular-nums text-zinc-600">
               {String(index + 1).padStart(2, "0")}
             </span>
-            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+            <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-500">
               {isFeatured
-                ? "Featured Capstone"
+                ? "Featured"
                 : project.label ?? "Project"}
-            </p>
+            </span>
           </div>
 
           <h3
             className={cn(
-              "font-display text-balance font-semibold tracking-tight text-zinc-50",
-              isCompact
-                ? "text-2xl sm:text-3xl"
-                : "text-3xl sm:text-4xl lg:text-[2.75rem]",
+              "font-display font-semibold tracking-tight text-zinc-50",
+              isFeatured
+                ? "text-3xl sm:text-4xl lg:text-5xl"
+                : "text-2xl sm:text-3xl",
             )}
           >
             {project.title}
           </h3>
-          <p className="mt-2 text-base text-zinc-400 sm:text-lg">
+
+          <p className="mt-3 text-base text-zinc-400 sm:text-lg">
             {project.subtitle}
           </p>
-          <p className="mt-1 text-sm text-zinc-500">{project.role}</p>
+          <p className="mt-2 text-sm text-zinc-600">{project.role}</p>
         </div>
 
-        <div className="flex flex-wrap gap-2.5">
+        <div className="flex flex-wrap gap-2">
           {project.caseStudyPath && (
             <Button href={project.caseStudyPath} variant="primary">
-              <FileText size={16} />
               Case Study
+              <ArrowUpRight size={14} />
             </Button>
           )}
           {project.liveUrl && (
             <Button
               href={project.liveUrl}
-              variant={project.caseStudyPath ? "outline" : "primary"}
+              variant="outline"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Globe size={16} />
-              Live Website
+              <Globe size={14} />
+              Live
             </Button>
           )}
           {project.githubUrl && (
             <Button
               href={project.githubUrl}
-              variant="outline"
+              variant="ghost"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <GitHubIcon size={16} />
-              GitHub
+              <GitHubIcon size={14} />
+              Code
             </Button>
           )}
         </div>
       </header>
 
+      {/* Story */}
       <div
         data-project="block"
-        className={cn("mt-8 max-w-3xl", !reducedMotion && "opacity-0")}
+        className={cn(
+          "mt-8 grid gap-10 lg:grid-cols-12 lg:gap-14",
+          !reducedMotion && "opacity-0",
+        )}
       >
-        <p className="text-base leading-relaxed text-zinc-400">
-          {project.summary}
-        </p>
-        {project.reflection && (
-          <p className="mt-3 text-sm leading-relaxed text-zinc-500">
-            {project.reflection}
+        <div className="lg:col-span-7">
+          <p className="max-w-2xl text-[15px] leading-[1.75] text-zinc-400 sm:text-base">
+            {project.summary}
           </p>
-        )}
-        {project.team && (
-          <p className="mt-3 text-sm leading-relaxed text-zinc-500">
-            {project.team}. {project.teamNotes}
-          </p>
-        )}
+
+          {project.reflection && (
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-600">
+              {project.reflection}
+            </p>
+          )}
+
+          {project.outcomes && project.outcomes.length > 0 && (
+            <ol className="mt-8 max-w-2xl space-y-4 border-t border-white/8 pt-8">
+              {project.outcomes.map((item, i) => (
+                <li key={item} className="flex gap-4 text-sm leading-relaxed text-zinc-300">
+                  <span className="font-mono text-[11px] text-sky-400/70">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+
+          {isCompact &&
+            project.contributions[0] && (
+              <p className="mt-6 max-w-2xl text-sm leading-relaxed text-zinc-500">
+                {project.contributions[0].items.join(" · ")}
+              </p>
+            )}
+        </div>
+
+        <div className="lg:col-span-5">
+          {project.architecture.length > 0 && (
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">
+                Flow
+              </p>
+              <p className="mt-4 text-sm leading-relaxed text-zinc-400">
+                {project.architecture.map((step) => step.label).join(" → ")}
+              </p>
+            </div>
+          )}
+
+          {!isCompact && project.contributions.length > 0 && (
+            <div className="mt-8 border-t border-white/8 pt-8">
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">
+                Scope
+              </p>
+              <div className="mt-4 space-y-5">
+                {project.contributions.slice(0, 2).map((section) => (
+                  <div key={section.title}>
+                    <p className="text-xs text-zinc-500">{section.title}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                      {section.items.slice(0, 5).join(" · ")}
+                      {section.items.length > 5 ? " · …" : ""}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              {project.caseStudyPath && (
+                <a
+                  href={project.caseStudyPath}
+                  className="mt-5 inline-flex items-center gap-1.5 text-sm text-sky-400/90 transition-colors hover:text-sky-300"
+                >
+                  <FileText size={14} />
+                  Full case study
+                </a>
+              )}
+            </div>
+          )}
+
+          {project.team && (
+            <p className="mt-8 text-xs leading-relaxed text-zinc-600">
+              {project.team}
+              {project.teamNotes ? ` · ${project.teamNotes}` : ""}
+            </p>
+          )}
+        </div>
       </div>
 
-      {project.outcomes && project.outcomes.length > 0 && (
+      {/* Imagery — open, quiet */}
+      {heroImage && (
         <div
           data-project="block"
-          className={cn("mt-8 max-w-3xl", !reducedMotion && "opacity-0")}
+          className={cn("mt-12 sm:mt-14", !reducedMotion && "opacity-0")}
         >
-          <h4 className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-sky-400/80">
-            Outcomes
-          </h4>
-          <ul className="space-y-3">
-            {project.outcomes.map((item) => (
-              <li
-                key={item}
-                className="flex items-start gap-2.5 text-sm leading-relaxed text-zinc-300"
-              >
-                <Check
-                  size={14}
-                  className="mt-0.5 shrink-0 text-sky-400/70"
-                  aria-hidden="true"
-                />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {!isCompact && (
-        <div
-          data-project="block"
-          className={cn(
-            "mt-12 grid items-start gap-10 md:grid-cols-2 md:gap-12 lg:gap-16",
-            !reducedMotion && "opacity-0",
-          )}
-        >
-          <div>
-            {project.screenshotSrc && project.additionalScreenshots?.length ? (
-              <ProjectScreenshots project={project} section="mobile" />
-            ) : (
-              <ProjectScreenshots project={project} featured={isFeatured} />
+          <div
+            className={cn(
+              "relative overflow-hidden rounded-lg border border-white/8 bg-[#0c1018]",
+              isFeatured ? "aspect-[16/9] sm:aspect-[2/1]" : "aspect-[16/10] max-w-3xl",
             )}
-          </div>
-
-          <div>
-            <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
-              System Architecture
-            </p>
-            <ArchitectureFlow
-              flowId={`${project.id}-architecture`}
-              steps={project.architecture}
+          >
+            <Image
+              src={heroImage}
+              alt={`${project.title} preview`}
+              fill
+              className="object-cover object-top"
+              sizes={
+                isFeatured
+                  ? "(max-width: 768px) 100vw, 1100px"
+                  : "(max-width: 768px) 100vw, 720px"
+              }
             />
           </div>
-        </div>
-      )}
 
-      {isCompact && project.screenshotSrc && (
-        <div
-          data-project="block"
-          className={cn("mt-8 max-w-lg", !reducedMotion && "opacity-0")}
-        >
-          <ProjectScreenshots project={project} featured={false} />
-        </div>
-      )}
-
-      {!isCompact && project.webScreenshot && project.additionalScreenshots?.length ? (
-        <div
-          data-project="block"
-          className={cn("mt-12", !reducedMotion && "opacity-0")}
-        >
-          <ProjectScreenshots project={project} section="web" />
-        </div>
-      ) : null}
-
-      {!isCompact && (
-        <div
-          data-project="block"
-          className={cn(
-            "mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12",
-            !reducedMotion && "opacity-0",
-          )}
-        >
-          {project.contributions.map((section) => (
-            <div key={section.title}>
-              <h4 className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-sky-400/80">
-                {section.title}
-              </h4>
-              <ul className="space-y-2.5">
-                {section.items.map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-start gap-2.5 text-sm leading-relaxed text-zinc-400"
-                  >
-                    <Check
-                      size={14}
-                      className="mt-0.5 shrink-0 text-sky-400/70"
-                      aria-hidden="true"
-                    />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+          {isFeatured && secondaryImages.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 gap-4 sm:max-w-xl">
+              {secondaryImages.map((shot) => (
+                <div
+                  key={shot.src}
+                  className="relative aspect-[4/3] overflow-hidden rounded-md border border-white/8 bg-[#0c1018]"
+                >
+                  <Image
+                    src={shot.src}
+                    alt={shot.alt}
+                    fill
+                    className="object-cover object-top"
+                    sizes="280px"
+                  />
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
 
-      {isCompact &&
-        project.contributions.map((section) => (
-          <div
-            key={section.title}
-            data-project="block"
-            className={cn("mt-8 max-w-2xl", !reducedMotion && "opacity-0")}
-          >
-            <h4 className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-sky-400/80">
-              {section.title}
-            </h4>
-            <p className="text-sm leading-relaxed text-zinc-400">
-              {section.items.join(" · ")}
-            </p>
-          </div>
-        ))}
-
-      {project.features && project.features.length > 0 && !isCompact && (
-        <div
-          data-project="block"
-          className={cn("mt-12", !reducedMotion && "opacity-0")}
-        >
-          <h4 className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-500">
-            Features
-          </h4>
-          <p className="max-w-3xl text-sm leading-relaxed text-zinc-400">
-            {project.features.join(" · ")}
-          </p>
-        </div>
-      )}
-
+      {/* Tech */}
       <div
         data-project="block"
-        className={cn("mt-10", !reducedMotion && "opacity-0")}
+        className={cn("mt-8 sm:mt-10", !reducedMotion && "opacity-0")}
       >
         <ProjectTech technologies={project.technologies} />
       </div>

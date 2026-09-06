@@ -8,7 +8,7 @@ interface ProjectTechProps {
 
 export function ProjectTech({ technologies, className }: ProjectTechProps) {
   return (
-    <div className={cn("flex flex-wrap gap-2", className)}>
+    <div className={cn("flex flex-wrap gap-1.5", className)}>
       {technologies.map((tech) => (
         <TechChip key={tech} label={tech} />
       ))}
