@@ -19,7 +19,7 @@ export function onPortfolioReady(callback: () => void) {
   const handler = () => callback();
   window.addEventListener(PORTFOLIO_READY_EVENT, handler, { once: true });
   // Safety fallback if the event never fires
-  const fallback = window.setTimeout(callback, 5000);
+  const fallback = window.setTimeout(callback, 10000);
   return () => {
     window.removeEventListener(PORTFOLIO_READY_EVENT, handler);
     window.clearTimeout(fallback);

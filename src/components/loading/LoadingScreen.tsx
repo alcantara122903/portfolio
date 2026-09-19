@@ -1,45 +1,46 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { gsap, registerGsap } from "@/lib/gsap";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { signalPortfolioReady } from "@/lib/portfolioReady";
 
-const LoaderCanvas = dynamic(
+const Particles = dynamic(
   () =>
-    import("@/components/loading/LoaderSignalCanvas").then(
-      (m) => m.LoaderSignalCanvas,
+    import("@/components/loading/BootParticlesCanvas").then(
+      (m) => m.BootParticlesCanvas,
     ),
   { ssr: false },
 );
 
-const STATUS_LINES = [
-  "Booting systems lab",
-  "Calibrating signal core",
-  "Linking particle field",
-  "Syncing interface layer",
-  "Signal locked",
-];
+function useHydrated() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
 
+const STATUS = ["Initialize", "Calibrate", "Connect", "Ready"] as const;
+
+/** Full-viewport boot — every edge of the screen is used. */
 export function LoadingScreen() {
   const rootRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef(0);
-  const percentRef = useRef<HTMLSpanElement>(null);
+  const veilRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const firstRef = useRef<HTMLSpanElement>(null);
+  const lastRef = useRef<HTMLSpanElement>(null);
+  const roleRef = useRef<HTMLParagraphElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLParagraphElement>(null);
-  const brandRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
+  const percentRef = useRef<HTMLSpanElement>(null);
+  const chromeRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef(0);
 
   const reducedMotion = useReducedMotion();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const hydrated = useHydrated();
   const [visible, setVisible] = useState(true);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -48,183 +49,182 @@ export function LoadingScreen() {
       const t = window.setTimeout(() => {
         setVisible(false);
         signalPortfolioReady();
-      }, 250);
+      }, 100);
       return () => window.clearTimeout(t);
     }
 
-    if (!rootRef.current) return;
     registerGsap();
-
-    const proxy = { value: 0 };
-    const duration = isMobile ? 1.9 : 2.75;
+    const root = rootRef.current;
+    if (!root) return;
 
     const ctx = gsap.context(() => {
+      gsap.set(veilRef.current, { autoAlpha: 1 });
+      gsap.set(stageRef.current, { autoAlpha: 0 });
+      gsap.set([firstRef.current, lastRef.current], { autoAlpha: 0, y: 28 });
+      gsap.set(roleRef.current, { autoAlpha: 0, y: 14 });
+      gsap.set(chromeRef.current, { autoAlpha: 0 });
+      gsap.set(barRef.current, { scaleX: 0, transformOrigin: "left center" });
+
+      const proxy = { p: 0 };
+      progressRef.current = 0;
+
+      const exit = () => {
+        const out = gsap.timeline({
+          defaults: { ease: "power3.inOut" },
+          onComplete: () => {
+            setVisible(false);
+            signalPortfolioReady();
+          },
+        });
+
+        out
+          .to(chromeRef.current, { autoAlpha: 0, duration: 0.3 }, 0)
+          .to(
+            [roleRef.current, firstRef.current, lastRef.current],
+            { autoAlpha: 0, y: -14, duration: 0.35, stagger: 0.04 },
+            0.05,
+          )
+          .to(stageRef.current, { autoAlpha: 0, duration: 0.4 }, 0.12)
+          .to(
+            veilRef.current,
+            {
+              clipPath: "inset(0 0 100% 0)",
+              duration: 0.65,
+              ease: "power4.inOut",
+            },
+            0.28,
+          )
+          .set(root, { autoAlpha: 0 });
+      };
+
       const tl = gsap.timeline({
         defaults: { ease: "power3.out" },
-        onComplete: () => {
-          setVisible(false);
-          signalPortfolioReady();
-        },
+        onComplete: exit,
       });
 
-      tl.fromTo(
-        stageRef.current,
-        { autoAlpha: 0, scale: 1.08 },
-        { autoAlpha: 1, scale: 1, duration: 0.85, ease: "power2.out" },
-        0,
-      );
-
-      tl.fromTo(
-        brandRef.current,
-        { autoAlpha: 0, y: 30, filter: "blur(12px)" },
-        { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.75 },
-        0.15,
-      );
-
-      tl.fromTo(
-        '[data-loader="hud"]',
-        { autoAlpha: 0, y: 18 },
-        { autoAlpha: 1, y: 0, duration: 0.55 },
-        0.3,
-      );
+      tl.to(stageRef.current, { autoAlpha: 1, duration: 0.5 }, 0);
+      tl.to(chromeRef.current, { autoAlpha: 1, duration: 0.45 }, 0.2);
 
       tl.to(
         proxy,
         {
-          value: 100,
-          duration,
-          ease: "power2.inOut",
+          p: 1,
+          duration: 2.0,
+          ease: "power1.inOut",
           onUpdate: () => {
-            const value = proxy.value;
-            progressRef.current = value / 100;
+            const p = proxy.p;
+            progressRef.current = p;
+            if (barRef.current) gsap.set(barRef.current, { scaleX: p });
             if (percentRef.current) {
-              percentRef.current.textContent = `${Math.round(value)
-                .toString()
-                .padStart(2, "0")}%`;
-            }
-            if (barRef.current) {
-              barRef.current.style.transform = `scaleX(${value / 100})`;
+              percentRef.current.textContent = String(
+                Math.round(p * 100),
+              ).padStart(2, "0");
             }
             if (statusRef.current) {
               const idx = Math.min(
-                STATUS_LINES.length - 1,
-                Math.floor((value / 100) * STATUS_LINES.length),
+                STATUS.length - 1,
+                Math.floor(p * STATUS.length),
               );
-              statusRef.current.textContent = STATUS_LINES[idx];
+              statusRef.current.textContent = STATUS[idx];
             }
           },
         },
-        0.35,
-      );
-
-      tl.fromTo(
-        '[data-loader="lock"]',
-        { autoAlpha: 0, scale: 0.85, y: 10 },
-        { autoAlpha: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.6)" },
-        "-=0.4",
+        0.25,
       );
 
       tl.to(
-        '[data-loader="flash"]',
-        { autoAlpha: 0.55, duration: 0.12, yoyo: true, repeat: 1 },
-        "-=0.1",
+        firstRef.current,
+        { autoAlpha: 1, y: 0, duration: 0.85, ease: "power4.out" },
+        0.55,
       );
-
       tl.to(
-        rootRef.current,
-        {
-          autoAlpha: 0,
-          scale: 1.06,
-          filter: "blur(16px)",
-          duration: 0.8,
-          ease: "power2.inOut",
-        },
-        "+=0.2",
+        lastRef.current,
+        { autoAlpha: 1, y: 0, duration: 0.85, ease: "power4.out" },
+        0.7,
       );
-    }, rootRef);
+      tl.to(roleRef.current, { autoAlpha: 1, y: 0, duration: 0.55 }, 1.0);
+
+      tl.to({}, { duration: 0.35 });
+    }, root);
 
     return () => ctx.revert();
-  }, [hydrated, reducedMotion, isMobile]);
+  }, [hydrated, reducedMotion]);
 
   if (!visible) return null;
-
-  if (reducedMotion) {
-    return (
-      <div
-        className="fixed inset-0 z-9999 flex items-center justify-center bg-zinc-950"
-        data-portfolio-loader
-      >
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-sky-400">
-          Loading
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div
       ref={rootRef}
-      className="fixed inset-0 z-9999 flex min-h-dvh flex-col overflow-hidden bg-[#07090d]"
-      aria-hidden="true"
       data-portfolio-loader
+      className="fixed inset-0 z-[100] h-dvh w-screen overflow-hidden bg-[var(--background)]"
+      aria-busy="true"
+      aria-live="polite"
+      aria-label="Loading portfolio"
     >
-      <div ref={stageRef} className="absolute inset-0 opacity-0">
-        {hydrated && (
-          <LoaderCanvas progressRef={progressRef} compact={isMobile} />
-        )}
-      </div>
-
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,transparent_0%,rgba(9,9,11,0.25)_45%,rgba(9,9,11,0.92)_78%)]" />
-      <div className="pointer-events-none absolute inset-0 grid-pattern opacity-15" />
       <div
-        data-loader="flash"
-        className="pointer-events-none absolute inset-0 bg-sky-200/30 opacity-0"
-      />
-
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-end px-5 pb-6 sm:justify-center sm:pb-0">
-        <div
-          ref={brandRef}
-          className="mb-[18vh] flex flex-col items-center text-center opacity-0 sm:mb-0 sm:mt-[42vh]"
-        >
-          <p className="font-mono text-[10px] uppercase tracking-[0.42em] text-sky-400/90">
-            Systems Lab
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-tight text-zinc-50 sm:text-5xl">
-            IVAN<span className="text-sky-400">.</span>
-          </h1>
-          <p
-            data-loader="lock"
-            className="mt-3 font-mono text-[10px] uppercase tracking-[0.28em] text-sky-300/80 opacity-0"
-          >
-            Signal locked
-          </p>
-        </div>
-      </div>
-
-      <div
-        data-loader="hud"
-        className="relative z-10 mx-auto w-full max-w-md px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] opacity-0 sm:px-8"
+        ref={veilRef}
+        className="absolute inset-0 h-full w-full"
+        style={{ clipPath: "inset(0 0 0 0)" }}
       >
-        <div className="mb-3 flex items-end justify-between gap-4">
-          <p
-            ref={statusRef}
-            className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-500"
-          >
-            {STATUS_LINES[0]}
-          </p>
-          <span
-            ref={percentRef}
-            className="font-mono text-sm tabular-nums text-sky-400"
-          >
-            00%
-          </span>
+        {/* Full-bleed particles */}
+        <div ref={stageRef} className="absolute inset-0 h-full w-full opacity-0">
+          <Particles progressRef={progressRef} />
         </div>
-        <div className="h-[2px] overflow-hidden rounded-full bg-zinc-800/90">
-          <div
-            ref={barRef}
-            className="h-full origin-left rounded-full bg-linear-to-r from-sky-600 via-sky-300 to-cyan-200 shadow-[0_0_12px_rgba(56,189,248,0.55)]"
-            style={{ transform: "scaleX(0)" }}
-          />
+
+        {/* Full-screen frame — corners + center + bottom edge */}
+        <div
+          ref={chromeRef}
+          className="pointer-events-none absolute inset-0 z-10 flex h-full w-full flex-col opacity-0"
+        >
+          {/* Top bar */}
+          <div className="flex shrink-0 items-start justify-between px-5 pt-5 sm:px-8 sm:pt-8 lg:px-12 lg:pt-10">
+            <p className="font-mono text-[10px] tracking-[0.28em] text-zinc-500">
+              SYSTEM BOOT
+            </p>
+            <p className="font-mono text-[10px] tracking-[0.28em] text-zinc-600">
+              2026
+            </p>
+          </div>
+
+          {/* Center identity — owns the middle of the viewport */}
+          <div className="flex min-h-0 flex-1 flex-col justify-center px-5 sm:px-8 lg:px-12">
+            <h1 className="font-display max-w-[min(100%,52rem)] text-[clamp(3.5rem,14vw,8rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-zinc-50">
+              <span ref={firstRef} className="block opacity-0">
+                Ivan
+              </span>
+              <span
+                ref={lastRef}
+                className="mt-1 block text-zinc-500 opacity-0 sm:mt-2"
+              >
+                Alcantara
+              </span>
+            </h1>
+            <p
+              ref={roleRef}
+              className="mt-6 max-w-xl text-lg text-zinc-400 opacity-0 sm:mt-8 sm:text-xl lg:text-2xl"
+            >
+              Mobile & Web Developer
+            </p>
+          </div>
+
+          {/* Bottom edge — full-width progress */}
+          <div className="shrink-0 px-5 pb-5 sm:px-8 sm:pb-8 lg:px-12 lg:pb-10">
+            <div className="mb-3 flex items-baseline justify-between gap-4">
+              <p ref={statusRef} className="text-sm text-zinc-500">
+                {STATUS[0]}
+              </p>
+              <p className="font-mono text-sm tabular-nums text-zinc-200">
+                <span ref={percentRef}>00</span>
+                <span className="text-zinc-600">%</span>
+              </p>
+            </div>
+            <div className="h-[2px] w-full overflow-hidden bg-white/10">
+              <div
+                ref={barRef}
+                className="h-full w-full origin-left scale-x-0 bg-[var(--accent)]"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -50,7 +50,7 @@ export function DownloadResumeButton({
         return;
       }
     } catch {
-      // Fall through to printable résumé page.
+      // Fall through to printable resume page.
     } finally {
       setLoading(false);
     }
@@ -72,7 +72,7 @@ export function DownloadResumeButton({
       aria-busy={loading}
     >
       <Download size={16} />
-      {loading ? "Preparing…" : "Download Résumé"}
+      {loading ? "Preparing..." : "Download Resume"}
     </Button>
   );
 }

@@ -5,16 +5,7 @@ import { gsap, registerGsap } from "@/lib/gsap";
 import { onPortfolioReady } from "@/lib/portfolioReady";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-const HERO_KEYS = [
-  "eyebrow",
-  "title",
-  "role",
-  "tagline",
-  "bio",
-  "actions",
-  "meta",
-] as const;
-
+/** Smooth hero intro — no clip masks (prevents letter cutoff). */
 export function GsapHeroIntro({
   children,
   className,
@@ -35,89 +26,93 @@ export function GsapHeroIntro({
       if (!rootRef.current) return;
 
       ctx = gsap.context(() => {
-        const nodes = HERO_KEYS.map((key) =>
-          rootRef.current!.querySelector(`[data-hero='${key}']`),
-        ).filter(Boolean) as HTMLElement[];
-
-        gsap.set(nodes, { autoAlpha: 0 });
-
+        const lines = rootRef.current!.querySelectorAll<HTMLElement>(
+          "[data-hero-line]",
+        );
         const eyebrow = rootRef.current!.querySelector("[data-hero='eyebrow']");
-        const title = rootRef.current!.querySelector("[data-hero='title']");
+        const rule = rootRef.current!.querySelector("[data-hero='rule']");
         const role = rootRef.current!.querySelector("[data-hero='role']");
         const tagline = rootRef.current!.querySelector("[data-hero='tagline']");
-        const bio = rootRef.current!.querySelector("[data-hero='bio']");
+        const signal = rootRef.current!.querySelector("[data-hero='signal']");
         const actions = rootRef.current!.querySelector("[data-hero='actions']");
-        const meta = rootRef.current!.querySelector("[data-hero='meta']");
+        const bio = rootRef.current!.querySelector("[data-hero='bio']");
+        const stage = document.querySelector("[data-hero='stage']");
 
-        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        gsap.set(
+          [eyebrow, role, tagline, signal, actions, bio, stage].filter(Boolean),
+          { autoAlpha: 0 },
+        );
+        gsap.set(lines, { autoAlpha: 0, y: 28 });
+        if (role) gsap.set(role, { y: 12 });
+        if (rule) gsap.set(rule, { scaleX: 0, transformOrigin: "left center" });
+
+        const tl = gsap.timeline({
+          defaults: { ease: "power3.out", force3D: true },
+        });
 
         if (eyebrow) {
-          tl.fromTo(
-            eyebrow,
-            { autoAlpha: 0, y: 16, letterSpacing: "0.45em" },
-            { autoAlpha: 1, y: 0, letterSpacing: "0.25em", duration: 0.7 },
-            0.05,
-          );
+          tl.to(eyebrow, { autoAlpha: 1, duration: 0.45 }, 0);
         }
-        if (title) {
-          tl.fromTo(
-            title,
-            { autoAlpha: 0, y: 64, filter: "blur(12px)", scale: 0.98 },
+
+        if (lines.length) {
+          tl.to(
+            lines,
             {
               autoAlpha: 1,
               y: 0,
-              filter: "blur(0px)",
-              scale: 1,
-              duration: 1.05,
+              duration: 0.9,
+              stagger: 0.12,
+              ease: "power4.out",
             },
-            0.12,
+            0.08,
           );
         }
+
+        if (rule) {
+          tl.to(rule, { scaleX: 1, duration: 0.55 }, 0.55);
+        }
         if (role) {
-          tl.fromTo(
-            role,
-            { autoAlpha: 0, x: -28 },
-            { autoAlpha: 1, x: 0, duration: 0.65 },
-            0.35,
-          );
+          tl.to(role, { autoAlpha: 1, y: 0, duration: 0.5 }, 0.65);
         }
         if (tagline) {
           tl.fromTo(
             tagline,
-            { autoAlpha: 0, y: 24 },
-            { autoAlpha: 1, y: 0, duration: 0.7 },
-            0.45,
+            { autoAlpha: 0, y: 10 },
+            { autoAlpha: 1, y: 0, duration: 0.5 },
+            0.78,
           );
         }
-        if (bio) {
+        if (signal) {
           tl.fromTo(
-            bio,
-            { autoAlpha: 0, y: 18 },
-            { autoAlpha: 1, y: 0, duration: 0.65 },
-            0.58,
+            signal,
+            { autoAlpha: 0, y: 8 },
+            { autoAlpha: 1, y: 0, duration: 0.45 },
+            0.9,
           );
         }
         if (actions) {
           tl.fromTo(
             actions,
-            { autoAlpha: 0, y: 20 },
-            { autoAlpha: 1, y: 0, duration: 0.6 },
-            0.72,
+            { autoAlpha: 0, y: 8 },
+            { autoAlpha: 1, y: 0, duration: 0.45 },
+            1.0,
           );
         }
-        if (meta) {
+        if (bio) {
+          tl.to(bio, { autoAlpha: 1, duration: 0.4 }, 1.1);
+        }
+        if (stage) {
           tl.fromTo(
-            meta,
-            { autoAlpha: 0, y: 12 },
-            { autoAlpha: 1, y: 0, duration: 0.55 },
-            0.88,
+            stage,
+            { autoAlpha: 0, x: 20 },
+            { autoAlpha: 1, x: 0, duration: 0.95 },
+            0.2,
           );
         }
       }, rootRef);
     };
 
     const stopReady = onPortfolioReady(start);
-
     return () => {
       stopReady();
       ctx?.revert();

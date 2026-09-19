@@ -1,7 +1,11 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { handleHashNavClick } from "@/lib/scrollToSection";
 import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
+  MouseEvent,
   ReactNode,
 } from "react";
 
@@ -11,14 +15,14 @@ const variants: Record<ButtonVariant, string> = {
   primary:
     "bg-zinc-100 text-zinc-950 hover:bg-white border border-transparent",
   secondary:
-    "bg-transparent text-zinc-100 border border-white/12 hover:border-white/25 hover:bg-white/4",
+    "bg-transparent text-zinc-100 border border-white/12 hover:border-white/25 hover:bg-white/[0.03]",
   ghost: "bg-transparent text-zinc-400 hover:text-white",
   outline:
-    "bg-transparent text-zinc-200 border border-white/12 hover:border-sky-400/40 hover:text-white",
+    "bg-transparent text-zinc-200 border border-white/12 hover:border-[var(--accent)]/45 hover:text-white",
 };
 
 const baseStyles =
-  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium tracking-tight transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07090d] disabled:pointer-events-none disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-[var(--radius-control)] px-4 py-2.5 text-sm font-medium tracking-tight transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] disabled:pointer-events-none disabled:opacity-50";
 
 type SharedProps = {
   variant?: ButtonVariant;
@@ -42,11 +46,18 @@ export function Button(props: AnchorButtonProps | NativeButtonProps) {
   const classes = cn(baseStyles, variants[variant], className);
 
   if (href) {
+    const anchorRest = rest as AnchorHTMLAttributes<HTMLAnchorElement>;
+    const isHash = href.startsWith("#");
+
     return (
       <a
         href={href}
         className={classes}
-        {...(rest as AnchorHTMLAttributes<HTMLAnchorElement>)}
+        {...anchorRest}
+        onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+          if (isHash) handleHashNavClick(event);
+          anchorRest.onClick?.(event);
+        }}
       >
         {children}
       </a>

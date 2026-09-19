@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 
 function subscribeMediaQuery(
   query: string,
@@ -28,17 +28,10 @@ export function useMediaQuery(query: string): boolean {
 }
 
 /**
- * Locks the first client media-query value after mount.
- * Use for WebGL / GSAP pin trees so resizing the window does not
- * tear down canvases and crash the tab.
+ * Alias for useMediaQuery.
+ * Kept for call sites that previously locked viewport mode;
+ * canvas remounts are avoided elsewhere so live queries are safe.
  */
 export function useStableMediaQuery(query: string): boolean {
-  const live = useMediaQuery(query);
-  const [stable, setStable] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    setStable((prev) => (prev === null ? live : prev));
-  }, [live]);
-
-  return stable ?? live;
+  return useMediaQuery(query);
 }

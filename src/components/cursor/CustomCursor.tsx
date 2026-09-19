@@ -12,7 +12,7 @@ const TRAIL_COUNT = 6;
 export function CustomCursor() {
   const reducedMotion = useReducedMotion();
   const isFinePointer = useMediaQuery("(hover: hover) and (pointer: fine)");
-  const [enabled, setEnabled] = useState(false);
+  const enabled = isFinePointer && !reducedMotion;
   const [mode, setMode] = useState<CursorMode>("default");
   const [visible, setVisible] = useState(false);
 
@@ -29,10 +29,6 @@ export function CustomCursor() {
     Array.from({ length: TRAIL_COUNT }, () => ({ x: 0, y: 0 })),
   );
   const raf = useRef<number | null>(null);
-
-  useEffect(() => {
-    setEnabled(isFinePointer && !reducedMotion);
-  }, [isFinePointer, reducedMotion]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -185,16 +181,16 @@ export function CustomCursor() {
           style={{
             boxShadow:
               mode === "hover"
-                ? "0 0 28px rgba(56,189,248,0.4), inset 0 0 14px rgba(56,189,248,0.15)"
-                : "0 0 18px rgba(56,189,248,0.22)",
+                ? "0 0 0 1px rgba(94,184,232,0.5)"
+                : "0 0 0 1px rgba(94,184,232,0.28)",
           }}
         >
-          <span className="absolute left-1/2 top-0 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-300 shadow-[0_0_8px_rgba(56,189,248,0.9)]" />
-          <span className="absolute bottom-0 left-1/2 h-1 w-1 -translate-x-1/2 translate-y-1/2 rounded-full bg-cyan-400/80" />
+          <span className="absolute left-1/2 top-0 h-px w-1 -translate-x-1/2 -translate-y-1/2 bg-[var(--accent)]" />
+          <span className="absolute bottom-0 left-1/2 h-px w-1 -translate-x-1/2 translate-y-1/2 bg-[var(--accent)]/70" />
         </div>
       </div>
 
-      {/* 3D gem core */}
+      {/* Core */}
       <div
         ref={coreRef}
         className="absolute left-0 top-0 will-change-transform"
@@ -202,8 +198,8 @@ export function CustomCursor() {
       >
         <div
           className={cn(
-            "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-400/30 blur-md transition-all duration-200",
-            mode === "hover" ? "h-12 w-12" : mode === "press" ? "h-5 w-5" : "h-7 w-7",
+            "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--accent)]/20 blur-sm transition-all duration-200",
+            mode === "hover" ? "h-8 w-8" : mode === "press" ? "h-4 w-4" : "h-5 w-5",
           )}
         />
 
@@ -211,28 +207,23 @@ export function CustomCursor() {
           ref={gemRef}
           className={cn(
             "relative will-change-transform transition-[width,height] duration-200",
-            mode === "hover" ? "h-[18px] w-[18px]" : mode === "press" ? "h-2.5 w-2.5" : "h-3.5 w-3.5",
+            mode === "hover" ? "h-3.5 w-3.5" : mode === "press" ? "h-2 w-2" : "h-2.5 w-2.5",
           )}
           style={{ transformStyle: "preserve-3d" }}
         >
           <span
-            className="absolute inset-0 bg-linear-to-br from-sky-100 via-sky-400 to-cyan-600"
+            className="absolute inset-0 bg-[var(--accent)]"
             style={{
-              transform: "translateZ(3px)",
-              boxShadow: "0 0 22px rgba(56,189,248,0.75)",
+              transform: "translateZ(2px)",
             }}
           />
           <span
-            className="absolute inset-0 bg-linear-to-tl from-sky-700/70 to-sky-200/40"
-            style={{ transform: "translateZ(-3px) rotateY(180deg)" }}
+            className="absolute inset-0 bg-zinc-700"
+            style={{ transform: "translateZ(-2px) rotateY(180deg)" }}
           />
           <span
-            className="absolute inset-[15%] bg-white/55 blur-[0.5px]"
-            style={{ transform: "translateZ(4px)" }}
-          />
-          <span
-            className="absolute inset-0 border border-white/50"
-            style={{ transform: "translateZ(5px)" }}
+            className="absolute inset-[20%] bg-white/40"
+            style={{ transform: "translateZ(3px)" }}
           />
         </div>
       </div>

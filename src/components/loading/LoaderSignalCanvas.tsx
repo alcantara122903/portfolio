@@ -1,11 +1,55 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 
 const PARTICLE_COUNT = 280;
+
+function hash01(n: number) {
+  const x = Math.sin(n * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+function buildAssemblingParticles(count: number) {
+  const start = new Float32Array(count * 3);
+  const end = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+  const seeds = new Float32Array(count);
+  const cA = new THREE.Color("#5eb8e8");
+  const cB = new THREE.Color("#a5f3fc");
+  const cC = new THREE.Color("#67e8f9");
+
+  for (let i = 0; i < count; i++) {
+    const i3 = i * 3;
+    const scatter = 4 + hash01(i * 3.1) * 6;
+    const theta = hash01(i * 5.7) * Math.PI * 2;
+    const phi = Math.acos(2 * hash01(i * 9.2) - 1);
+
+    start[i3] = scatter * Math.sin(phi) * Math.cos(theta);
+    start[i3 + 1] = scatter * Math.sin(phi) * Math.sin(theta);
+    start[i3 + 2] = scatter * Math.cos(phi);
+
+    const r = 1.1 + hash01(i * 4.4) * 1.8;
+    const t2 = hash01(i * 6.6) * Math.PI * 2;
+    const p2 = Math.acos(2 * hash01(i * 8.8) - 1);
+    end[i3] = r * Math.sin(p2) * Math.cos(t2);
+    end[i3 + 1] = r * Math.sin(p2) * Math.sin(t2);
+    end[i3 + 2] = r * Math.cos(p2);
+
+    seeds[i] = hash01(i * 2.4);
+    const mix = hash01(i * 7.3);
+    const c = mix > 0.66 ? cC : mix > 0.33 ? cB : cA;
+    colors[i3] = c.r;
+    colors[i3 + 1] = c.g;
+    colors[i3 + 2] = c.b;
+  }
+
+  return { start, end, colors, seeds };
+}
+
+const LOADER_PARTICLES = buildAssemblingParticles(PARTICLE_COUNT);
 
 function BootCore({
   progressRef,
@@ -80,42 +124,7 @@ function AssemblingParticles({
   progressRef: React.MutableRefObject<number>;
 }) {
   const points = useRef<THREE.Points>(null);
-  const { start, end, colors, seeds } = useMemo(() => {
-    const start = new Float32Array(PARTICLE_COUNT * 3);
-    const end = new Float32Array(PARTICLE_COUNT * 3);
-    const colors = new Float32Array(PARTICLE_COUNT * 3);
-    const seeds = new Float32Array(PARTICLE_COUNT);
-    const cA = new THREE.Color("#38bdf8");
-    const cB = new THREE.Color("#a5f3fc");
-    const cC = new THREE.Color("#818cf8");
-
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const i3 = i * 3;
-      const scatter = 4 + Math.random() * 6;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-
-      start[i3] = scatter * Math.sin(phi) * Math.cos(theta);
-      start[i3 + 1] = scatter * Math.sin(phi) * Math.sin(theta);
-      start[i3 + 2] = scatter * Math.cos(phi);
-
-      const r = 1.1 + Math.random() * 1.8;
-      const t2 = Math.random() * Math.PI * 2;
-      const p2 = Math.acos(2 * Math.random() - 1);
-      end[i3] = r * Math.sin(p2) * Math.cos(t2);
-      end[i3 + 1] = r * Math.sin(p2) * Math.sin(t2);
-      end[i3 + 2] = r * Math.cos(p2);
-
-      seeds[i] = Math.random();
-      const mix = Math.random();
-      const c = mix > 0.66 ? cC : mix > 0.33 ? cB : cA;
-      colors[i3] = c.r;
-      colors[i3 + 1] = c.g;
-      colors[i3 + 2] = c.b;
-    }
-
-    return { start, end, colors, seeds };
-  }, []);
+  const { start, end, colors, seeds } = LOADER_PARTICLES;
 
   useFrame((state) => {
     if (!points.current) return;
@@ -167,6 +176,7 @@ function BootRings({
   progressRef: React.MutableRefObject<number>;
 }) {
   const group = useRef<THREE.Group>(null);
+  const mats = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
 
   useFrame((state) => {
     if (!group.current) return;
@@ -175,6 +185,9 @@ function BootRings({
     group.current.rotation.x = 0.7 + p * 0.4;
     group.current.rotation.z = t * (0.2 + p * 0.6);
     group.current.scale.setScalar(0.6 + p * 0.7);
+    mats.current.forEach((mat) => {
+      if (mat) mat.opacity = 0.15 + p * 0.25;
+    });
   });
 
   return (
@@ -183,9 +196,12 @@ function BootRings({
         <mesh key={radius} rotation={[Math.PI / 2, 0, i * 0.85]}>
           <torusGeometry args={[radius, 0.01, 10, 96]} />
           <meshBasicMaterial
-            color={i === 1 ? "#67e8f9" : "#38bdf8"}
+            ref={(mat) => {
+              mats.current[i] = mat;
+            }}
+            color={i === 1 ? "#67e8f9" : "#5eb8e8"}
             transparent
-            opacity={0.15 + progressRef.current * 0.25}
+            opacity={0.2}
           />
         </mesh>
       ))}

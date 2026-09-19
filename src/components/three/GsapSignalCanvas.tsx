@@ -1,11 +1,45 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 
+function hash01(n: number) {
+  const x = Math.sin(n * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+function buildParticleField(count: number) {
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+  const seeds = new Float32Array(count);
+  const colorA = new THREE.Color("#5eb8e8");
+  const colorB = new THREE.Color("#a5f3fc");
+  const colorC = new THREE.Color("#67e8f9");
+
+  for (let i = 0; i < count; i++) {
+    const i3 = i * 3;
+    const radius = 1.4 + hash01(i * 3.1) * 4.2;
+    const theta = hash01(i * 5.7) * Math.PI * 2;
+    const phi = Math.acos(2 * hash01(i * 9.2) - 1);
+    positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+    positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+    positions[i3 + 2] = radius * Math.cos(phi) - 1.2;
+    seeds[i] = hash01(i * 2.4) * Math.PI * 2;
+
+    const mix = hash01(i * 7.3);
+    const c = mix > 0.66 ? colorC : mix > 0.33 ? colorB : colorA;
+    colors[i3] = c.r;
+    colors[i3 + 1] = c.g;
+    colors[i3 + 2] = c.b;
+  }
+
+  return { positions, colors, seeds };
+}
+
 const PARTICLE_COUNT = 360;
+const SIGNAL_PARTICLES = buildParticleField(PARTICLE_COUNT);
 
 function SignalCore({
   progressRef,
@@ -96,33 +130,7 @@ function ParticleField({
   phaseRef: React.MutableRefObject<number>;
 }) {
   const points = useRef<THREE.Points>(null);
-  const { positions, colors, seeds } = useMemo(() => {
-    const positions = new Float32Array(PARTICLE_COUNT * 3);
-    const colors = new Float32Array(PARTICLE_COUNT * 3);
-    const seeds = new Float32Array(PARTICLE_COUNT);
-    const colorA = new THREE.Color("#38bdf8");
-    const colorB = new THREE.Color("#a5f3fc");
-    const colorC = new THREE.Color("#67e8f9");
-
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const i3 = i * 3;
-      const radius = 1.4 + Math.random() * 4.2;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
-      positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-      positions[i3 + 2] = radius * Math.cos(phi) - 1.2;
-      seeds[i] = Math.random() * Math.PI * 2;
-
-      const mix = Math.random();
-      const c = mix > 0.66 ? colorC : mix > 0.33 ? colorB : colorA;
-      colors[i3] = c.r;
-      colors[i3 + 1] = c.g;
-      colors[i3 + 2] = c.b;
-    }
-
-    return { positions, colors, seeds };
-  }, []);
+  const { positions, colors, seeds } = SIGNAL_PARTICLES;
 
   useFrame((state) => {
     if (!points.current) return;

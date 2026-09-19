@@ -8,8 +8,8 @@ import { ResumePrintTrigger } from "@/components/resume/ResumePrintTrigger";
 import { DownloadResumeButton } from "@/components/ui/DownloadResumeButton";
 
 export const metadata: Metadata = {
-  title: "Résumé | Ivan Alcantara",
-  description: "Résumé of Ivan Vasquez Alcantara — Mobile & Web Developer",
+  title: "Resume | Ivan Alcantara",
+  description: "Resume of Ivan Vasquez Alcantara - Mobile & Web Developer",
   robots: { index: false, follow: false },
 };
 

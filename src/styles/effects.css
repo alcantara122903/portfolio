@@ -1,74 +1,15 @@
 @layer utilities {
-  .text-gradient {
-    background: linear-gradient(135deg, #fafafa 0%, #a1a1aa 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  .glow-accent {
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
-  }
-
-  .grid-pattern {
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
-    background-size: 64px 64px;
-    mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
-  }
-
-  .scanline {
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 3px,
-      rgba(255, 255, 255, 0.01) 3px,
-      rgba(255, 255, 255, 0.01) 6px
-    );
-  }
-
   .surface-quiet {
     border-top: 1px solid var(--border);
     background: transparent;
   }
 
-  .terminal-cursor {
-    animation: blink 1s step-end infinite;
-  }
-
-  @keyframes blink {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0;
-    }
-  }
-
-  .data-pulse {
-    animation: dataPulse 2.5s ease-in-out infinite;
-  }
-
-  [data-anime="card"] {
-    transform-style: preserve-3d;
-    backface-visibility: hidden;
-  }
-
-  @keyframes dataPulse {
-    0%,
-    100% {
-      opacity: 0.4;
-    }
-    50% {
-      opacity: 1;
-    }
+  .text-measure {
+    max-width: var(--text-measure);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .terminal-cursor,
   .data-pulse {
     animation: none;
   }

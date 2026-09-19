@@ -10,12 +10,12 @@ export function ProjectsSection() {
   const supporting = portfolio.projects.filter((p) => !p.featured);
 
   return (
-    <section id="projects" className="relative" data-gsap="section">
+    <section id="projects" className="relative" data-gsap="section" data-story="projects">
       <Container className="relative">
         <SectionHeading
-          eyebrow="Projects"
-          title="Systems I've built."
-          subtitle="One featured case study, then supporting work that built the fundamentals."
+          eyebrow="Work"
+          title="NU-SECURE first — then the projects that built the fundamentals."
+          subtitle="Case-study depth on the capstone system. Supporting work uses a different layout on purpose."
         />
 
         <div className="mt-12 sm:mt-16">

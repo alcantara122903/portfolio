@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollExperience } from "@/components/scroll/ScrollExperience";
-import { ScrollSignalTheater } from "@/components/gsap/ScrollSignalTheater";
+import { SmoothScroll } from "@/components/scroll/SmoothScroll";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { ProjectsSection } from "@/components/sections/ProjectsSection";
@@ -17,19 +17,20 @@ export default function Home() {
     <>
       <ScrollExperience />
       <Navbar />
-      <main className="relative z-10 flex-1">
-        <HeroSection />
-        <AboutSection />
-        <ScrollSignalTheater />
-        <ProjectsSection />
-        <SkillsSection />
-        <ProcessSection />
-        <EducationSection />
-        <CertificationSection />
-        <GitHubSection />
-        <ContactSection />
-      </main>
-      <Footer />
+      <SmoothScroll>
+        <main className="relative z-10 flex-1">
+          <HeroSection />
+          <AboutSection />
+          <ProjectsSection />
+          <SkillsSection />
+          <ProcessSection />
+          <EducationSection />
+          <CertificationSection />
+          <GitHubSection />
+          <ContactSection />
+        </main>
+        <Footer />
+      </SmoothScroll>
     </>
   );
 }

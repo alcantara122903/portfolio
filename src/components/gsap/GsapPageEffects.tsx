@@ -5,6 +5,10 @@ import { gsap, registerGsap, ScrollTrigger } from "@/lib/gsap";
 import { useStableMediaQuery } from "@/hooks/useMediaQuery";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
+/**
+ * Page chrome + section heading reveals.
+ * Uses 3D line motion without SplitText masks (avoids letter clipping).
+ */
 export function GsapPageEffects() {
   const reducedMotion = useReducedMotion();
   const isMobile = useStableMediaQuery("(max-width: 768px)");
@@ -15,9 +19,11 @@ export function GsapPageEffects() {
     registerGsap();
 
     const ctx = gsap.context(() => {
-      // Top signal progress bar
       if (progressBarRef.current) {
-        gsap.set(progressBarRef.current, { scaleX: 0, transformOrigin: "left center" });
+        gsap.set(progressBarRef.current, {
+          scaleX: 0,
+          transformOrigin: "left center",
+        });
         gsap.to(progressBarRef.current, {
           scaleX: 1,
           ease: "none",
@@ -25,166 +31,71 @@ export function GsapPageEffects() {
             trigger: document.documentElement,
             start: "top top",
             end: "bottom bottom",
-            scrub: 0.35,
+            scrub: 0.25,
           },
         });
       }
 
-      // Section chapters — soft rise (skip pinned theaters)
-      gsap.utils
-        .toArray<HTMLElement>("[data-gsap='section']")
-        .forEach((section) => {
-          if (section.id === "process" || section.id === "home") return;
+      gsap.utils.toArray<HTMLElement>("[data-gsap='heading']").forEach((block) => {
+        const title = block.querySelector<HTMLElement>("[data-gsap='title']");
+        const rule = block.querySelector<HTMLElement>("[data-gsap='rule']");
+        const subtitle = block.querySelector<HTMLElement>("[data-gsap='subtitle']");
+        const eyebrow = block.querySelector<HTMLElement>("[data-gsap='eyebrow']");
 
-          gsap.fromTo(
-            section,
-            { autoAlpha: 0.55, y: 28 },
-            {
-              autoAlpha: 1,
-              y: 0,
-              ease: "none",
-              scrollTrigger: {
-                trigger: section,
-                start: "top 92%",
-                end: "top 48%",
-                scrub: 0.8,
-              },
-            },
-          );
-        });
-
-      // Headings
-      gsap.utils.toArray<HTMLElement>("[data-gsap='heading']").forEach((el) => {
-        const eyebrow = el.querySelector("[data-gsap='eyebrow']");
-        const title = el.querySelector("[data-gsap='title']");
-        const subtitle = el.querySelector("[data-gsap='subtitle']");
-        const rule = el.querySelector("[data-gsap='rule']");
+        if (rule) {
+          gsap.set(rule, { scaleX: 0, transformOrigin: "left center" });
+        }
+        if (subtitle) gsap.set(subtitle, { autoAlpha: 0, y: 12 });
+        if (eyebrow) gsap.set(eyebrow, { autoAlpha: 0.35 });
+        if (title) {
+          gsap.set(title, {
+            autoAlpha: 0,
+            y: 28,
+            rotateX: -18,
+            transformOrigin: "50% 100%",
+            transformPerspective: 800,
+            force3D: true,
+          });
+        }
 
         const tl = gsap.timeline({
           scrollTrigger: {
-            trigger: el,
+            trigger: block,
             start: "top 86%",
             toggleActions: "play none none reverse",
           },
+          defaults: { force3D: true },
         });
 
         if (eyebrow) {
-          tl.fromTo(
-            eyebrow,
-            { autoAlpha: 0, y: 12, letterSpacing: "0.4em" },
-            {
-              autoAlpha: 1,
-              y: 0,
-              letterSpacing: "0.28em",
-              duration: 0.55,
-              ease: "power2.out",
-            },
-            0,
-          );
+          tl.to(eyebrow, { autoAlpha: 1, duration: 0.35, ease: "power2.out" }, 0);
         }
+
         if (title) {
-          tl.fromTo(
+          tl.to(
             title,
-            { autoAlpha: 0, y: 40, filter: "blur(6px)" },
             {
               autoAlpha: 1,
               y: 0,
-              filter: "blur(0px)",
-              duration: 0.9,
+              rotateX: 0,
+              duration: 0.85,
               ease: "power3.out",
             },
             0.05,
           );
         }
+
         if (rule) {
-          tl.fromTo(
-            rule,
-            { scaleX: 0 },
-            { scaleX: 1, duration: 0.7, ease: "power2.out" },
-            0.2,
-          );
+          tl.to(rule, { scaleX: 1, duration: 0.6, ease: "power2.out" }, 0.3);
         }
+
         if (subtitle) {
-          tl.fromTo(
+          tl.to(
             subtitle,
-            { autoAlpha: 0, y: 18 },
-            { autoAlpha: 1, y: 0, duration: 0.65, ease: "power2.out" },
-            0.22,
+            { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" },
+            0.4,
           );
         }
-      });
-
-      // Generic reveals
-      gsap.utils.toArray<HTMLElement>("[data-gsap='reveal']").forEach((el) => {
-        gsap.fromTo(
-          el,
-          { autoAlpha: 0, y: 32 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.85,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 90%",
-              toggleActions: "play none none reverse",
-            },
-          },
-        );
-      });
-
-      // Project articles — staggered clean entrance
-      gsap.utils.toArray<HTMLElement>("[data-gsap='project']").forEach((el, i) => {
-        gsap.fromTo(
-          el,
-          { autoAlpha: 0, y: 48, filter: "blur(4px)" },
-          {
-            autoAlpha: 1,
-            y: 0,
-            filter: "blur(0px)",
-            duration: 1,
-            ease: "power3.out",
-            delay: (i % 3) * 0.04,
-            scrollTrigger: {
-              trigger: el,
-              start: "top 88%",
-              toggleActions: "play none none reverse",
-            },
-          },
-        );
-      });
-
-      // Parallax layers
-      gsap.utils.toArray<HTMLElement>("[data-gsap='parallax']").forEach((el) => {
-        const speed = Number(el.dataset.speed ?? 0.12);
-        gsap.to(el, {
-          yPercent: speed * -70,
-          ease: "none",
-          scrollTrigger: {
-            trigger: el.parentElement ?? el,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-      });
-
-      // Section ambient glow intensity
-      gsap.utils.toArray<HTMLElement>("main > section").forEach((section) => {
-        gsap.fromTo(
-          section,
-          { "--section-glow": 0 },
-          {
-            "--section-glow": 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 70%",
-              end: "top 25%",
-              scrub: true,
-            },
-          },
-        );
       });
     });
 
@@ -202,12 +113,12 @@ export function GsapPageEffects() {
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[2px]"
+      className="pointer-events-none fixed inset-x-0 top-0 z-60 h-px"
       aria-hidden="true"
     >
       <div
         ref={progressBarRef}
-        className="h-full origin-left bg-linear-to-r from-sky-500 via-cyan-300 to-sky-200 shadow-[0_0_12px_rgba(56,189,248,0.55)]"
+        className="h-full origin-left bg-[var(--accent)]"
       />
     </div>
   );

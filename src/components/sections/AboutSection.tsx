@@ -1,80 +1,82 @@
+"use client";
+
 import { portfolio } from "@/data/portfolio";
-import { Reveal } from "@/components/animations/Reveal";
 import { Container } from "@/components/layout/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
+import { MaskReveal } from "@/components/motion/MaskReveal";
 
 const profileFields = [
   { label: "Role", value: portfolio.personal.role },
   { label: "Education", value: portfolio.personal.education },
-  { label: "Specialization", value: portfolio.personal.specialization },
-  { label: "Location", value: "Lipa City, Batangas" },
+  { label: "Focus", value: portfolio.personal.specialization },
+  { label: "Location", value: portfolio.personal.location },
   { label: "Status", value: portfolio.personal.status },
-  {
-    label: "Focus",
-    value: portfolio.personal.focusAreas.join(" · "),
-  },
 ];
+
+const LAYERS = ["Interface", "Logic", "Data"] as const;
 
 export function AboutSection() {
   return (
-    <section id="about" className="relative" data-gsap="section">
+    <section
+      id="about"
+      className="relative"
+      data-gsap="section"
+      data-story="about"
+    >
       <Container>
         <SectionHeading
           eyebrow="About"
-          title="I build more than interfaces — I build the system behind them."
+          title="IT student building mobile and web systems end to end."
         />
 
-        <div className="mt-14 grid gap-14 lg:grid-cols-12 lg:gap-20">
-          <div className="space-y-6 lg:col-span-7">
-            <Reveal delay={0.1}>
-              <p className="text-base leading-[1.75] text-zinc-400 sm:text-lg">
-                I&apos;m a fourth-year BS Information Technology student at
-                National University – Lipa, specializing in Mobile and Web
-                Applications.
+        <div className="mt-8 flex flex-wrap gap-x-8 gap-y-2">
+          {LAYERS.map((layer, i) => (
+            <MaskReveal key={layer} delay={i * 0.08} className="py-1">
+              <p className="font-mono text-[11px] tracking-[0.18em] text-zinc-600">
+                {String(i + 1).padStart(2, "0")} {layer}
               </p>
-            </Reveal>
-            <Reveal delay={0.15}>
-              <p className="text-base leading-[1.75] text-zinc-400 sm:text-lg">
-                Through academic projects — especially NU-SECURE — I&apos;ve
-                worked across mobile interfaces, Laravel APIs, databases,
-                authentication, QR workflows, OCR, and responsive web apps.
+            </MaskReveal>
+          ))}
+        </div>
+
+        <div className="mt-12 grid gap-14 lg:grid-cols-12 lg:gap-20">
+          <div className="space-y-5 lg:col-span-7">
+            <MaskReveal>
+              <p className="max-w-xl text-base leading-[1.75] text-zinc-400 sm:text-lg">
+                Fourth-year BS Information Technology at National University
+                Lipa. Capstone work on NU-SECURE spans React Native, Laravel
+                APIs, QR and OCR flows, and a shared PostgreSQL database.
               </p>
-            </Reveal>
-            <Reveal delay={0.2}>
-              <p className="text-base leading-[1.75] text-zinc-400 sm:text-lg">
-                I care about how the full system fits together: what users see,
-                the APIs behind it, and the data that keeps everything
+            </MaskReveal>
+            <MaskReveal delay={0.08}>
+              <p className="max-w-xl text-base leading-[1.75] text-zinc-400 sm:text-lg">
+                I care about the full path: what people touch, the API that
+                moves the request, and the data that keeps campus workflows
                 consistent.
               </p>
-            </Reveal>
-            <Reveal delay={0.25}>
-              <div className="flex flex-wrap gap-3 pt-2">
-                <Button href="#projects">See Projects</Button>
-                <Button href="#contact" variant="outline">
-                  Get in Touch
-                </Button>
-              </div>
-            </Reveal>
+            </MaskReveal>
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Button href="#projects">Selected work</Button>
+              <Button href="#contact" variant="outline">
+                Contact
+              </Button>
+            </div>
           </div>
 
-          <Reveal delay={0.2} className="lg:col-span-5">
-            <dl className="divide-y divide-white/8 border-y border-white/8">
-              {profileFields.map((field) => (
-                <div
-                  key={field.label}
-                  className="grid grid-cols-[7.5rem_1fr] gap-4 py-4 sm:grid-cols-[8.5rem_1fr]"
-                >
-                  <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-                    {field.label}
-                  </dt>
-                  <dd className="text-sm font-medium leading-snug text-zinc-200">
-                    {field.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </Reveal>
+          <dl className="divide-y divide-white/8 border-y border-white/8 lg:col-span-5">
+            {profileFields.map((field) => (
+              <div
+                key={field.label}
+                className="grid grid-cols-[6.5rem_1fr] gap-4 py-4 sm:grid-cols-[7.5rem_1fr]"
+              >
+                <dt className="text-sm text-zinc-500">{field.label}</dt>
+                <dd className="text-sm font-medium leading-snug text-zinc-200">
+                  {field.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </Container>
     </section>

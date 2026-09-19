@@ -17,7 +17,6 @@ export function SectionHeading({
 }: SectionHeadingProps) {
   return (
     <div
-      data-anime="section-heading"
       data-gsap="heading"
       className={cn(
         "max-w-3xl",
@@ -27,30 +26,28 @@ export function SectionHeading({
     >
       {eyebrow && (
         <p
-          data-anime="eyebrow"
           data-gsap="eyebrow"
-          className="mb-4 font-mono text-[11px] font-medium uppercase tracking-[0.28em] text-sky-400/80"
+          className="mb-3 text-sm font-medium text-[var(--muted)]"
         >
           {eyebrow}
         </p>
       )}
       <h2
-        data-anime="title"
         data-gsap="title"
-        className="font-display text-balance text-3xl font-semibold tracking-tight text-zinc-50 min-[380px]:text-4xl sm:text-[2.75rem] lg:text-5xl"
+        className="font-display text-balance text-3xl font-semibold leading-[1.12] tracking-tight text-[var(--foreground)] min-[380px]:text-4xl sm:text-[2.6rem] lg:text-[2.85rem]"
+        style={{ transformStyle: "preserve-3d" }}
       >
         {title}
       </h2>
       <div
         data-gsap="rule"
-        className="mt-5 h-px w-16 origin-left bg-linear-to-r from-sky-400/70 to-transparent"
+        className="mt-5 h-px w-12 origin-left bg-[var(--border)]"
         aria-hidden="true"
       />
       {subtitle && (
         <p
-          data-anime="subtitle"
           data-gsap="subtitle"
-          className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg"
+          className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--muted)] sm:text-[1.05rem]"
         >
           {subtitle}
         </p>

@@ -1,4 +1,3 @@
-import { TechChip } from "@/components/ui/TechChip";
 import { cn } from "@/lib/utils";
 
 interface ProjectTechProps {
@@ -6,12 +5,11 @@ interface ProjectTechProps {
   className?: string;
 }
 
+/** Plain text stack — no chip soup. */
 export function ProjectTech({ technologies, className }: ProjectTechProps) {
   return (
-    <div className={cn("flex flex-wrap gap-1.5", className)}>
-      {technologies.map((tech) => (
-        <TechChip key={tech} label={tech} />
-      ))}
-    </div>
+    <p className={cn("text-sm leading-relaxed text-zinc-400", className)}>
+      {technologies.join(" · ")}
+    </p>
   );
 }

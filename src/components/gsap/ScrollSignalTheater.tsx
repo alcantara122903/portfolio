@@ -48,7 +48,9 @@ export function ScrollSignalTheater() {
   const activeIndex = useRef(0);
   const goToRef = useRef<(index: number) => void>(() => {});
 
-  compactRef.current = isNarrow;
+  useEffect(() => {
+    compactRef.current = isNarrow;
+  }, [isNarrow]);
 
   useEffect(() => {
     if (reducedMotion || !panelRef.current) return;

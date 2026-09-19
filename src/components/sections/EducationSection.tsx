@@ -5,7 +5,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function EducationSection() {
   return (
-    <section id="education" data-gsap="section">
+    <section id="education" data-gsap="section" data-story="education">
       <Container>
         <SectionHeading eyebrow="Education" title="Academic path." />
 
@@ -16,7 +16,7 @@ export function EducationSection() {
                 data-anime="timeline-item"
                 className="grid gap-3 py-8 sm:grid-cols-[10rem_1fr] sm:gap-10"
               >
-                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-sky-400/80">
+                <p className="font-mono text-[11px] tracking-[0.18em] text-zinc-500">
                   {entry.period}
                 </p>
                 <div>

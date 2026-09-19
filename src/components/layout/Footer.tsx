@@ -12,11 +12,11 @@ export function Footer() {
             <span className="text-sky-400">.</span>
           </p>
           <p className="mt-2 text-sm text-zinc-500">
-            © {getYear()} · {portfolio.personal.location}
+            Copyright {getYear()} {portfolio.personal.location}
           </p>
         </div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
-          Next.js · GSAP · Three.js
+        <p className="text-[11px] tracking-wide text-zinc-600">
+          Next.js / GSAP / Three.js
         </p>
       </Container>
     </footer>

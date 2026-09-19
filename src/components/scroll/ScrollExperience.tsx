@@ -1,20 +1,30 @@
 "use client";
 
-import { GsapSignalScene } from "@/components/gsap/GsapSignalScene";
+import dynamic from "next/dynamic";
 import { GsapPageEffects } from "@/components/gsap/GsapPageEffects";
-import { useStableMediaQuery } from "@/hooks/useMediaQuery";
+import { ScrollMotionPath } from "@/components/motion/ScrollMotionPath";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
+const ScrollParticlesField = dynamic(
+  () =>
+    import("@/components/motion/ScrollParticlesField").then(
+      (m) => m.ScrollParticlesField,
+    ),
+  { ssr: false },
+);
+
+/**
+ * One unique theme: canvas particles (loader + homepage)
+ * + MotionPath traveler scrubbed to scroll.
+ */
 export function ScrollExperience() {
   const reducedMotion = useReducedMotion();
-  const isMobile = useStableMediaQuery("(max-width: 768px)");
-
-  if (reducedMotion || isMobile) return null;
 
   return (
     <>
-      <GsapSignalScene />
-      <GsapPageEffects />
+      <ScrollParticlesField />
+      <ScrollMotionPath />
+      {!reducedMotion && <GsapPageEffects />}
     </>
   );
 }

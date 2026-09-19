@@ -5,6 +5,7 @@ import { ArrowLeft, Check, Globe } from "lucide-react";
 import { portfolio } from "@/data/portfolio";
 import { Container } from "@/components/layout/Container";
 import { ArchitectureFlow } from "@/components/projects/ArchitectureFlow";
+import { SystemFlow } from "@/components/projects/SystemFlow";
 import { Button } from "@/components/ui/Button";
 import { DownloadResumeButton } from "@/components/ui/DownloadResumeButton";
 import { GMAIL_COMPOSE_URL } from "@/lib/contact";
@@ -23,15 +24,15 @@ export default function NuSecureCaseStudyPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-zinc-950 text-zinc-100">
-      <header className="border-b border-zinc-800/80">
+    <div className="min-h-dvh bg-[var(--background)] text-[var(--foreground)]">
+      <header className="border-b border-white/8">
         <Container className="flex flex-wrap items-center justify-between gap-4 py-5">
           <Link
             href="/#projects"
-            className="inline-flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60"
+            className="inline-flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/60"
           >
             <ArrowLeft size={16} />
-            Back to Projects
+            Back to work
           </Link>
           <div className="flex flex-wrap gap-2">
             {project.liveUrl && (
@@ -53,16 +54,10 @@ export default function NuSecureCaseStudyPage() {
       </header>
 
       <main>
-        <section className="relative overflow-hidden border-b border-zinc-800/60 py-16 sm:py-20">
-          <div
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(56,189,248,0.12),transparent_45%)]"
-            aria-hidden="true"
-          />
+        <section className="relative overflow-hidden border-b border-white/8 py-16 sm:py-20">
           <Container className="relative">
-            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-sky-400/80">
-              Featured Capstone · Case Study
-            </p>
-            <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-zinc-50 sm:text-5xl">
+            <p className="text-sm text-zinc-500">Capstone case study</p>
+            <h1 className="font-display mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-zinc-50 sm:text-5xl">
               {project.title}
             </h1>
             <p className="mt-3 text-lg text-zinc-400">{project.subtitle}</p>
@@ -98,12 +93,19 @@ export default function NuSecureCaseStudyPage() {
           </section>
         )}
 
-        <section className="border-y border-zinc-800/60 py-14 sm:py-16">
+        <section className="border-y border-white/8 py-14 sm:py-16">
           <Container>
-            <h2 className="text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">
-              System Architecture
-            </h2>
-            <div className="mt-8 max-w-4xl">
+            <h2 className="text-sm font-medium text-zinc-400">System flow</h2>
+            <p className="mt-2 max-w-xl text-sm text-zinc-600">
+              Visitor → React Native App → QR / OCR → Laravel REST API →
+              Supabase PostgreSQL → Campus validation workflow
+            </p>
+            <div className="mt-8 max-w-xl">
+              <SystemFlow
+                steps={project.architecture.map((step) => step.label)}
+              />
+            </div>
+            <div className="mt-10 max-w-4xl">
               <ArchitectureFlow
                 flowId="nu-secure-case-architecture"
                 steps={project.architecture}
@@ -112,10 +114,8 @@ export default function NuSecureCaseStudyPage() {
             {project.webStackLayers && (
               <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {project.webStackLayers.map((layer) => (
-                  <div key={layer.layer} className="border-t border-zinc-800 pt-4">
-                    <p className="text-[11px] uppercase tracking-widest text-sky-400/80">
-                      {layer.layer}
-                    </p>
+                  <div key={layer.layer} className="border-t border-white/8 pt-4">
+                    <p className="text-sm text-zinc-500">{layer.layer}</p>
                     <p className="mt-2 text-sm text-zinc-300">{layer.technology}</p>
                   </div>
                 ))}
