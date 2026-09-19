@@ -162,7 +162,7 @@ function useHeroPointerDepth(
 
 export function HeroSection() {
   const { personal } = portfolio;
-  const isMobile = useStableMediaQuery("(max-width: 640px)");
+  const isMobile = useStableMediaQuery("(max-width: 1023px)");
   const isTouch = useStableMediaQuery("(hover: none), (pointer: coarse)");
   const showScene = !isMobile;
   const sectionRef = useRef<HTMLElement>(null);
@@ -212,7 +212,7 @@ export function HeroSection() {
               </span>
               <span
                 data-hero-line
-                className="mt-2 block text-zinc-500 will-change-transform"
+                className="mt-2 block text-zinc-400 will-change-transform"
               >
                 {personal.lastName}
               </span>
@@ -267,7 +267,7 @@ export function HeroSection() {
 
             <p
               data-hero="bio"
-              className="mt-8 max-w-md font-mono text-[11px] leading-relaxed tracking-wide text-zinc-600"
+              className="mt-8 max-w-md font-mono text-[11px] leading-relaxed tracking-wide text-zinc-500"
             >
               TypeScript / Next.js / React Native / Laravel / Supabase
             </p>

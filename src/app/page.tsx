@@ -7,9 +7,8 @@ import { AboutSection } from "@/components/sections/AboutSection";
 import { ProjectsSection } from "@/components/sections/ProjectsSection";
 import { SkillsSection } from "@/components/sections/SkillsSection";
 import { ProcessSection } from "@/components/sections/ProcessSection";
-import { EducationSection } from "@/components/sections/EducationSection";
-import { CertificationSection } from "@/components/sections/CertificationSection";
-import { GitHubSection } from "@/components/sections/GitHubSection";
+import { JourneySection } from "@/components/sections/JourneySection";
+import { GitHubStrip } from "@/components/sections/GitHubStrip";
 import { ContactSection } from "@/components/sections/ContactSection";
 
 export default function Home() {
@@ -24,9 +23,8 @@ export default function Home() {
           <ProjectsSection />
           <SkillsSection />
           <ProcessSection />
-          <EducationSection />
-          <CertificationSection />
-          <GitHubSection />
+          <JourneySection />
+          <GitHubStrip />
           <ContactSection />
         </main>
         <Footer />

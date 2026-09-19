@@ -14,6 +14,8 @@ const Particles = dynamic(
   { ssr: false },
 );
 
+const BOOT_SEEN_KEY = "portfolio-boot-seen";
+
 function useHydrated() {
   return useSyncExternalStore(
     () => () => {},
@@ -24,7 +26,7 @@ function useHydrated() {
 
 const STATUS = ["Initialize", "Calibrate", "Connect", "Ready"] as const;
 
-/** Full-viewport boot — every edge of the screen is used. */
+/** Full-viewport boot — ≤2s, skip after first visit in session. */
 export function LoadingScreen() {
   const rootRef = useRef<HTMLDivElement>(null);
   const veilRef = useRef<HTMLDivElement>(null);
@@ -45,12 +47,27 @@ export function LoadingScreen() {
   useEffect(() => {
     if (!hydrated) return;
 
-    if (reducedMotion) {
-      const t = window.setTimeout(() => {
-        setVisible(false);
-        signalPortfolioReady();
-      }, 100);
-      return () => window.clearTimeout(t);
+    const skipBoot = () => {
+      try {
+        return sessionStorage.getItem(BOOT_SEEN_KEY) === "1";
+      } catch {
+        return false;
+      }
+    };
+
+    const markSeen = () => {
+      try {
+        sessionStorage.setItem(BOOT_SEEN_KEY, "1");
+      } catch {
+        /* ignore */
+      }
+    };
+
+    if (reducedMotion || skipBoot()) {
+      markSeen();
+      setVisible(false);
+      signalPortfolioReady();
+      return;
     }
 
     registerGsap();
@@ -60,8 +77,8 @@ export function LoadingScreen() {
     const ctx = gsap.context(() => {
       gsap.set(veilRef.current, { autoAlpha: 1 });
       gsap.set(stageRef.current, { autoAlpha: 0 });
-      gsap.set([firstRef.current, lastRef.current], { autoAlpha: 0, y: 28 });
-      gsap.set(roleRef.current, { autoAlpha: 0, y: 14 });
+      gsap.set([firstRef.current, lastRef.current], { autoAlpha: 0, y: 20 });
+      gsap.set(roleRef.current, { autoAlpha: 0, y: 10 });
       gsap.set(chromeRef.current, { autoAlpha: 0 });
       gsap.set(barRef.current, { scaleX: 0, transformOrigin: "left center" });
 
@@ -72,27 +89,28 @@ export function LoadingScreen() {
         const out = gsap.timeline({
           defaults: { ease: "power3.inOut" },
           onComplete: () => {
+            markSeen();
             setVisible(false);
             signalPortfolioReady();
           },
         });
 
         out
-          .to(chromeRef.current, { autoAlpha: 0, duration: 0.3 }, 0)
+          .to(chromeRef.current, { autoAlpha: 0, duration: 0.2 }, 0)
           .to(
             [roleRef.current, firstRef.current, lastRef.current],
-            { autoAlpha: 0, y: -14, duration: 0.35, stagger: 0.04 },
-            0.05,
+            { autoAlpha: 0, y: -10, duration: 0.25, stagger: 0.03 },
+            0.02,
           )
-          .to(stageRef.current, { autoAlpha: 0, duration: 0.4 }, 0.12)
+          .to(stageRef.current, { autoAlpha: 0, duration: 0.28 }, 0.08)
           .to(
             veilRef.current,
             {
               clipPath: "inset(0 0 100% 0)",
-              duration: 0.65,
+              duration: 0.4,
               ease: "power4.inOut",
             },
-            0.28,
+            0.15,
           )
           .set(root, { autoAlpha: 0 });
       };
@@ -102,14 +120,14 @@ export function LoadingScreen() {
         onComplete: exit,
       });
 
-      tl.to(stageRef.current, { autoAlpha: 1, duration: 0.5 }, 0);
-      tl.to(chromeRef.current, { autoAlpha: 1, duration: 0.45 }, 0.2);
+      tl.to(stageRef.current, { autoAlpha: 1, duration: 0.3 }, 0);
+      tl.to(chromeRef.current, { autoAlpha: 1, duration: 0.28 }, 0.1);
 
       tl.to(
         proxy,
         {
           p: 1,
-          duration: 2.0,
+          duration: 1.05,
           ease: "power1.inOut",
           onUpdate: () => {
             const p = proxy.p;
@@ -129,22 +147,22 @@ export function LoadingScreen() {
             }
           },
         },
-        0.25,
+        0.12,
       );
 
       tl.to(
         firstRef.current,
-        { autoAlpha: 1, y: 0, duration: 0.85, ease: "power4.out" },
-        0.55,
+        { autoAlpha: 1, y: 0, duration: 0.45, ease: "power4.out" },
+        0.28,
       );
       tl.to(
         lastRef.current,
-        { autoAlpha: 1, y: 0, duration: 0.85, ease: "power4.out" },
-        0.7,
+        { autoAlpha: 1, y: 0, duration: 0.45, ease: "power4.out" },
+        0.36,
       );
-      tl.to(roleRef.current, { autoAlpha: 1, y: 0, duration: 0.55 }, 1.0);
+      tl.to(roleRef.current, { autoAlpha: 1, y: 0, duration: 0.35 }, 0.5);
 
-      tl.to({}, { duration: 0.35 });
+      tl.to({}, { duration: 0.12 });
     }, root);
 
     return () => ctx.revert();
@@ -166,27 +184,23 @@ export function LoadingScreen() {
         className="absolute inset-0 h-full w-full"
         style={{ clipPath: "inset(0 0 0 0)" }}
       >
-        {/* Full-bleed particles */}
         <div ref={stageRef} className="absolute inset-0 h-full w-full opacity-0">
           <Particles progressRef={progressRef} />
         </div>
 
-        {/* Full-screen frame — corners + center + bottom edge */}
         <div
           ref={chromeRef}
           className="pointer-events-none absolute inset-0 z-10 flex h-full w-full flex-col opacity-0"
         >
-          {/* Top bar */}
           <div className="flex shrink-0 items-start justify-between px-5 pt-5 sm:px-8 sm:pt-8 lg:px-12 lg:pt-10">
             <p className="font-mono text-[10px] tracking-[0.28em] text-zinc-500">
               SYSTEM BOOT
             </p>
-            <p className="font-mono text-[10px] tracking-[0.28em] text-zinc-600">
+            <p className="font-mono text-[10px] tracking-[0.28em] text-zinc-500">
               2026
             </p>
           </div>
 
-          {/* Center identity — owns the middle of the viewport */}
           <div className="flex min-h-0 flex-1 flex-col justify-center px-5 sm:px-8 lg:px-12">
             <h1 className="font-display max-w-[min(100%,52rem)] text-[clamp(3.5rem,14vw,8rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-zinc-50">
               <span ref={firstRef} className="block opacity-0">
@@ -194,7 +208,7 @@ export function LoadingScreen() {
               </span>
               <span
                 ref={lastRef}
-                className="mt-1 block text-zinc-500 opacity-0 sm:mt-2"
+                className="mt-1 block text-zinc-400 opacity-0 sm:mt-2"
               >
                 Alcantara
               </span>
@@ -207,15 +221,14 @@ export function LoadingScreen() {
             </p>
           </div>
 
-          {/* Bottom edge — full-width progress */}
           <div className="shrink-0 px-5 pb-5 sm:px-8 sm:pb-8 lg:px-12 lg:pb-10">
             <div className="mb-3 flex items-baseline justify-between gap-4">
-              <p ref={statusRef} className="text-sm text-zinc-500">
+              <p ref={statusRef} className="text-sm text-zinc-400">
                 {STATUS[0]}
               </p>
               <p className="font-mono text-sm tabular-nums text-zinc-200">
                 <span ref={percentRef}>00</span>
-                <span className="text-zinc-600">%</span>
+                <span className="text-zinc-500">%</span>
               </p>
             </div>
             <div className="h-[2px] w-full overflow-hidden bg-white/10">

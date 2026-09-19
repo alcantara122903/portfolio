@@ -82,6 +82,23 @@ export function ProcessSection() {
       return () => ctx.revert();
     });
 
+    mm.add("(max-width: 768px)", () => {
+      const steps = rootRef.current!.querySelectorAll<HTMLElement>(
+        "[data-process-step]",
+      );
+      const marks = rootRef.current!.querySelectorAll<HTMLElement>(
+        "[data-process-mark]",
+      );
+      steps.forEach((step) => gsap.set(step, { autoAlpha: 1, x: 0 }));
+      marks.forEach((mark) =>
+        gsap.set(mark, {
+          scale: 1,
+          backgroundColor: "rgba(94,184,232,0.45)",
+        }),
+      );
+      if (fillRef.current) gsap.set(fillRef.current, { scaleY: 1 });
+    });
+
     return () => mm.revert();
   }, [reducedMotion]);
 
@@ -96,15 +113,15 @@ export function ProcessSection() {
       <Container>
         <SectionHeading
           eyebrow="Process"
-          title="From problem to working system."
-          subtitle="Scroll — each stage stays visible as the path gains structure."
+          title="How I work"
+          subtitle="Understand, design, build, test - then ship."
         />
 
         <div className="relative mt-14 pl-8 sm:pl-10">
           <div className="absolute bottom-4 left-[11px] top-4 w-px bg-white/10 sm:left-[15px]" />
           <div
             ref={fillRef}
-            className="absolute left-[11px] top-4 h-[calc(100%-2rem)] w-px origin-top scale-y-0 bg-[var(--accent)] sm:left-[15px]"
+            className="absolute left-[11px] top-4 h-[calc(100%-2rem)] w-px origin-top scale-y-100 bg-[var(--accent)] md:scale-y-0 sm:left-[15px]"
           />
 
           <ol className="space-y-0">
@@ -114,21 +131,21 @@ export function ProcessSection() {
                 data-process-step
                 className={cn(
                   "relative border-b border-white/8 py-8 last:border-b-0",
-                  reducedMotion ? "opacity-100" : "opacity-30",
+                  reducedMotion ? "opacity-100" : "opacity-100 md:opacity-30",
                 )}
               >
                 <span
                   data-process-mark
-                  className="absolute -left-8 top-10 h-2.5 w-2.5 rounded-full bg-white/12 sm:-left-10"
+                  className="absolute -left-8 top-10 h-2.5 w-2.5 rounded-full bg-[var(--accent)]/45 md:bg-white/12 sm:-left-10"
                   aria-hidden="true"
                 />
-                <span className="font-mono text-[11px] tabular-nums text-zinc-600">
+                <span className="font-mono text-[11px] tabular-nums text-zinc-500">
                   {step.number}
                 </span>
                 <h3 className="font-display mt-2 text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl">
                   {step.title}
                 </h3>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-500 sm:text-[15px]">
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-[15px]">
                   {step.description}
                 </p>
               </li>

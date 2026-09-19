@@ -172,7 +172,7 @@ export function SkillsSection() {
       <Container className="relative">
         <SectionHeading
           eyebrow="Stack"
-          title="How the tools connect."
+          title="Tools in context"
           subtitle="Hover a technology to see what it relates to in real builds."
         />
 

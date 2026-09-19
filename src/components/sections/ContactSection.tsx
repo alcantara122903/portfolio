@@ -95,14 +95,14 @@ export function ContactSection() {
 
         <SectionHeading
           eyebrow="Contact"
-          title="Let's build something that works."
+          title="Let's talk"
           subtitle={`${personal.availability}. Prefer ${personal.focusAreas.join(", ").toLowerCase()}.`}
         />
 
         <MaskReveal className="mt-12 max-w-xl">
           <dl className="divide-y divide-white/8 border-y border-white/8">
             <div className="grid gap-1 py-5 sm:grid-cols-[7rem_1fr] sm:items-center sm:gap-6">
-              <dt className="font-mono text-[10px] tracking-[0.18em] text-zinc-600">
+              <dt className="font-mono text-[10px] tracking-[0.18em] text-zinc-500">
                 Email
               </dt>
               <dd>
@@ -117,7 +117,7 @@ export function ContactSection() {
               </dd>
             </div>
             <div className="grid gap-1 py-5 sm:grid-cols-[7rem_1fr] sm:items-center sm:gap-6">
-              <dt className="font-mono text-[10px] tracking-[0.18em] text-zinc-600">
+              <dt className="font-mono text-[10px] tracking-[0.18em] text-zinc-500">
                 LinkedIn
               </dt>
               <dd>
@@ -132,7 +132,7 @@ export function ContactSection() {
               </dd>
             </div>
             <div className="grid gap-1 py-5 sm:grid-cols-[7rem_1fr] sm:items-center sm:gap-6">
-              <dt className="font-mono text-[10px] tracking-[0.18em] text-zinc-600">
+              <dt className="font-mono text-[10px] tracking-[0.18em] text-zinc-500">
                 GitHub
               </dt>
               <dd>

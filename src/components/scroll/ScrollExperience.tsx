@@ -2,8 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { GsapPageEffects } from "@/components/gsap/GsapPageEffects";
-import { ScrollMotionPath } from "@/components/motion/ScrollMotionPath";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useStableMediaQuery } from "@/hooks/useMediaQuery";
 
 const ScrollParticlesField = dynamic(
   () =>
@@ -13,18 +13,15 @@ const ScrollParticlesField = dynamic(
   { ssr: false },
 );
 
-/**
- * One unique theme: canvas particles (loader + homepage)
- * + MotionPath traveler scrubbed to scroll.
- */
+/** One background system only — particles. No MotionPath chrome. */
 export function ScrollExperience() {
   const reducedMotion = useReducedMotion();
+  const isMobile = useStableMediaQuery("(max-width: 768px)");
 
   return (
     <>
-      <ScrollParticlesField />
-      <ScrollMotionPath />
-      {!reducedMotion && <GsapPageEffects />}
+      {!reducedMotion && !isMobile && <ScrollParticlesField />}
+      {!reducedMotion && !isMobile && <GsapPageEffects />}
     </>
   );
 }

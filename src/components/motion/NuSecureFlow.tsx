@@ -14,7 +14,7 @@ const STEPS = [
   "Campus validation",
 ] as const;
 
-/** Scroll-scrubbed architecture for NU-SECURE — engineering storytelling. */
+/** Desktop: scroll-scrubbed architecture. Mobile: static list. */
 export function NuSecureFlow({ className }: { className?: string }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
@@ -76,7 +76,7 @@ export function NuSecureFlow({ className }: { className?: string }) {
 
     mm.add("(max-width: 768px)", () => {
       stepRefs.current.forEach((el) => {
-        if (el) gsap.set(el, { autoAlpha: 1 });
+        if (el) gsap.set(el, { autoAlpha: 1, x: 0 });
       });
       if (fillRef.current) gsap.set(fillRef.current, { scaleY: 1 });
     });
@@ -87,7 +87,7 @@ export function NuSecureFlow({ className }: { className?: string }) {
   return (
     <div ref={rootRef} className={cn("relative", className)}>
       <p className="text-sm font-medium text-zinc-300">System flow</p>
-      <p className="mt-2 text-sm text-zinc-600">
+      <p className="mt-2 hidden text-sm text-zinc-500 md:block">
         Scroll to follow a visitor through the stack.
       </p>
 
@@ -95,7 +95,7 @@ export function NuSecureFlow({ className }: { className?: string }) {
         <div className="absolute bottom-2 left-[7px] top-2 w-px bg-white/10" />
         <div
           ref={fillRef}
-          className="absolute left-[7px] top-2 h-[calc(100%-1rem)] w-px origin-top scale-y-0 bg-[var(--accent)]"
+          className="absolute left-[7px] top-2 h-[calc(100%-1rem)] w-px origin-top scale-y-100 bg-[var(--accent)] md:scale-y-0"
         />
 
         <ol className="space-y-0">
@@ -105,11 +105,10 @@ export function NuSecureFlow({ className }: { className?: string }) {
               ref={(el) => {
                 stepRefs.current[i] = el;
               }}
-              className="relative flex gap-4 border-b border-white/6 py-3.5 last:border-b-0"
-              style={{ opacity: reducedMotion ? 1 : 0.28 }}
+              className="relative flex gap-4 border-b border-white/6 py-3.5 last:border-b-0 md:opacity-[0.28]"
             >
               <span className="absolute -left-6 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full border border-[var(--accent)]/60 bg-[var(--background)]" />
-              <span className="w-7 shrink-0 font-mono text-[11px] tabular-nums text-zinc-600">
+              <span className="w-7 shrink-0 font-mono text-[11px] tabular-nums text-zinc-500">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span className="text-sm leading-snug text-zinc-200 sm:text-[15px]">

@@ -42,9 +42,9 @@ export const portfolio: PortfolioData = {
 
   navigation: [
     { label: "About", href: "#about" },
-    { label: "Projects", href: "#projects" },
+    { label: "Work", href: "#projects" },
     { label: "Skills", href: "#skills" },
-    { label: "Education", href: "#education" },
+    { label: "Process", href: "#process" },
     { label: "Contact", href: "#contact" },
   ],
 

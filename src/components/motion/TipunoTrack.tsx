@@ -15,7 +15,7 @@ const STAGES = [
   "Inventory",
 ] as const;
 
-/** Vertical scroll drives horizontal transaction workflow for Tipuno. */
+/** Desktop: scroll-scrubbed track. Mobile: static list. */
 export function TipunoTrack({ className }: { className?: string }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -79,60 +79,73 @@ export function TipunoTrack({ className }: { className?: string }) {
       return () => ctx.revert();
     });
 
-    mm.add("(max-width: 768px)", () => {
-      if (fillRef.current) gsap.set(fillRef.current, { scaleX: 1 });
-      stageRefs.current.forEach((el) => {
-        if (el) gsap.set(el, { autoAlpha: 1 });
-      });
-    });
-
     return () => mm.revert();
   }, [reducedMotion]);
 
   return (
     <div ref={rootRef} className={cn(className)}>
       <p className="text-sm font-medium text-zinc-300">Transaction flow</p>
-      <p className="mt-2 text-sm text-zinc-600">
-        Keep scrolling — the workflow moves with you.
+      <p className="mt-2 hidden text-sm text-zinc-500 md:block">
+        Keep scrolling - the workflow moves with you.
       </p>
 
-      <div className="mt-5 h-px overflow-hidden bg-white/8">
-        <div
-          ref={fillRef}
-          className="h-full origin-left scale-x-0 bg-[var(--accent)]"
-        />
-      </div>
+      {/* Mobile: static list */}
+      <ol className="mt-5 space-y-0 border-y border-white/8 md:hidden">
+        {STAGES.map((stage, i) => (
+          <li
+            key={stage}
+            className="flex gap-4 border-b border-white/6 py-3.5 last:border-b-0"
+          >
+            <span className="w-7 shrink-0 font-mono text-[11px] tabular-nums text-zinc-500">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className="text-sm text-zinc-200">{stage}</span>
+          </li>
+        ))}
+      </ol>
 
-      <div className="mt-4 overflow-hidden border-y border-white/8 py-6">
-        <div
-          ref={trackRef}
-          className="flex w-max gap-0 will-change-transform"
-        >
-          {STAGES.map((stage, i) => (
-            <div
-              key={stage}
-              ref={(el) => {
-                stageRefs.current[i] = el;
-              }}
-              className="flex w-[9.5rem] shrink-0 items-start gap-3 sm:w-[11rem]"
-              style={{ opacity: reducedMotion ? 1 : 0.4 }}
-            >
-              <div>
-                <p className="font-mono text-[10px] tabular-nums text-zinc-600">
-                  {String(i + 1).padStart(2, "0")}
-                </p>
-                <p className="mt-2 text-sm font-medium text-zinc-100">{stage}</p>
+      {/* Desktop: scrub track */}
+      <div className="mt-5 hidden md:block">
+        <div className="h-px overflow-hidden bg-white/8">
+          <div
+            ref={fillRef}
+            className="h-full origin-left scale-x-0 bg-[var(--accent)]"
+          />
+        </div>
+
+        <div className="mt-4 overflow-hidden border-y border-white/8 py-6">
+          <div
+            ref={trackRef}
+            className="flex w-max gap-0 will-change-transform"
+          >
+            {STAGES.map((stage, i) => (
+              <div
+                key={stage}
+                ref={(el) => {
+                  stageRefs.current[i] = el;
+                }}
+                className="flex w-[11rem] shrink-0 items-start gap-3"
+                style={{ opacity: reducedMotion ? 1 : 0.4 }}
+              >
+                <div>
+                  <p className="font-mono text-[10px] tabular-nums text-zinc-500">
+                    {String(i + 1).padStart(2, "0")}
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-zinc-100">
+                    {stage}
+                  </p>
+                </div>
+                {i < STAGES.length - 1 && (
+                  <span
+                    className="mt-6 font-mono text-[10px] text-zinc-600"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+                )}
               </div>
-              {i < STAGES.length - 1 && (
-                <span
-                  className="mt-6 font-mono text-[10px] text-zinc-700"
-                  aria-hidden="true"
-                >
-                  →
-                </span>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>

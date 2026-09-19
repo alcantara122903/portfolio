@@ -27,7 +27,7 @@ export function AboutSection() {
       <Container>
         <SectionHeading
           eyebrow="About"
-          title="IT student building mobile and web systems end to end."
+          title="Building systems end to end"
         />
 
         <div className="mt-8 flex flex-wrap gap-x-8 gap-y-2">

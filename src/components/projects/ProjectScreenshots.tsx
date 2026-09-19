@@ -22,7 +22,7 @@ export function ProjectScreenshots({
     const mobileShots = [
       {
         src: project.screenshotSrc!,
-        alt: `${project.title} — Guard Portal`,
+        alt: `${project.title} - Guard Portal`,
         label: "Guard Portal",
       },
       ...project.additionalScreenshots!.map((shot) => ({
@@ -96,7 +96,7 @@ export function ProjectScreenshots({
             <ArchitectureFlow
               flowId={`${project.id}-web-stack`}
               steps={project.webStackLayers.map((item) => ({
-                label: `${item.layer} · ${item.technology}`,
+                label: `${item.layer} / ${item.technology}`,
               }))}
             />
           </div>

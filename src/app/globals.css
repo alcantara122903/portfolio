@@ -10,7 +10,7 @@
   --foreground: #f2f2f0;
   --accent: #5eb8e8;
   --accent-soft: rgba(94, 184, 232, 0.1);
-  --muted: #8a8f98;
+  --muted: #a8adb6;
   --border: rgba(255, 255, 255, 0.08);
   --surface: rgba(255, 255, 255, 0.02);
   --section-y: clamp(4.5rem, 9vw, 7.5rem);
