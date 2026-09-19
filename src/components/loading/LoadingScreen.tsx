@@ -14,8 +14,6 @@ const Particles = dynamic(
   { ssr: false },
 );
 
-const BOOT_SEEN_KEY = "portfolio-boot-seen";
-
 function useHydrated() {
   return useSyncExternalStore(
     () => () => {},
@@ -26,7 +24,7 @@ function useHydrated() {
 
 const STATUS = ["Initialize", "Calibrate", "Connect", "Ready"] as const;
 
-/** Full-viewport boot — ≤2s, skip after first visit in session. */
+/** Full-viewport boot — kept under ~2s so content arrives quickly. */
 export function LoadingScreen() {
   const rootRef = useRef<HTMLDivElement>(null);
   const veilRef = useRef<HTMLDivElement>(null);
@@ -47,27 +45,12 @@ export function LoadingScreen() {
   useEffect(() => {
     if (!hydrated) return;
 
-    const skipBoot = () => {
-      try {
-        return sessionStorage.getItem(BOOT_SEEN_KEY) === "1";
-      } catch {
-        return false;
-      }
-    };
-
-    const markSeen = () => {
-      try {
-        sessionStorage.setItem(BOOT_SEEN_KEY, "1");
-      } catch {
-        /* ignore */
-      }
-    };
-
-    if (reducedMotion || skipBoot()) {
-      markSeen();
-      setVisible(false);
-      signalPortfolioReady();
-      return;
+    if (reducedMotion) {
+      const t = window.setTimeout(() => {
+        setVisible(false);
+        signalPortfolioReady();
+      }, 80);
+      return () => window.clearTimeout(t);
     }
 
     registerGsap();
@@ -89,7 +72,6 @@ export function LoadingScreen() {
         const out = gsap.timeline({
           defaults: { ease: "power3.inOut" },
           onComplete: () => {
-            markSeen();
             setVisible(false);
             signalPortfolioReady();
           },
