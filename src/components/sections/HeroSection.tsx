@@ -283,7 +283,7 @@ export function HeroSection() {
 
             <div className="relative">
               <p className="mb-3 hidden font-mono text-[10px] tracking-[0.2em] text-zinc-600 lg:block">
-                INTERACTIVE DEVICE - DRAG TO ORBIT
+                PLAY TO LOCK SCREEN · A/D TO DODGE · DRAG TO ORBIT
               </p>
               {showScene ? (
                 <Suspense fallback={<SceneFallback />}>
